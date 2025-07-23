@@ -3,19 +3,26 @@ function LandingPage() {
     <>
       <section className="landing">
         <div className="navigation">
-          <a href="#explore" className="nav">
-            Explore
-          </a>
-          <a href="#about-us" className="nav">
-            About us
-          </a>
-          <a href="#contact" className="nav">
-            Contact
-          </a>
-          <a href="#dev-info" className="nav">
-            Meet the Developer
-          </a>
+          <div className="logo">
+            <a href="#" className="name">GyanKosh </a>
+            <img src="logo.png" />
+          </div>
+          <div className="nav-links">
+            <a href="#explore" className="nav">
+              Explore
+            </a>
+            <a href="#about-us" className="nav">
+              About us
+            </a>
+            <a href="#contact" className="nav">
+              Contact
+            </a>
+            <a href="#dev-info" className="nav">
+              Meet the Developer
+            </a>
+          </div>
         </div>
+
 
         <div className="hero">
           <div className="explore" id="explore">
@@ -45,27 +52,27 @@ function LandingPage() {
             </p>
           </div>
           {/* <div className="overview">
-                        <div className="available-books">
-                            <h1>1K+</h1>
-                            <p>Books available</p>
-                        </div>
-                        <div className="readers">
-                            <h1>2k+</h1>
-                            <p>Active Readers</p>
-                        </div>
-                        <div className="burrowers">
-                            <h1>5k+</h1>
-                            <p>Burrowers around the City</p>
-                        </div>
-                        <div className="satisfaction">
-                            <h1>92%</h1>
-                            <p>Satisfaction</p>
-                        </div>
-                        <div className="access">
-                            <h1>24/7</h1>
-                            <p>Access</p>
-                        </div>
-                    </div> */}
+                            <div className="available-books">
+                                <h1>1K+</h1>
+                                <p>Books available</p>
+                            </div>
+                            <div className="readers">
+                                <h1>2k+</h1>
+                                <p>Active Readers</p>
+                            </div>
+                            <div className="burrowers">
+                                <h1>5k+</h1>
+                                <p>Burrowers around the City</p>
+                            </div>
+                            <div className="satisfaction">
+                                <h1>92%</h1>
+                                <p>Satisfaction</p>
+                            </div>
+                            <div className="access">
+                                <h1>24/7</h1>
+                                <p>Access</p>
+                            </div>
+                        </div> */}
 
           <div
             style={{
@@ -96,16 +103,16 @@ function LandingPage() {
         <div className="details"></div>
 
         <div className="featured-books">
-          <h1> Featured Books - Ready to Borrow</h1>
+          {/* <h1> Featured Books - Ready to Borrow</h1>
           <p>
             {" "}
             Discover popular titles that other readers are loving. One click to
             borrow and start reading!
-          </p>
+          </p> */}
         </div>
 
         <div className="buttom-information"></div>
-    </section>
+      </section>
     </>
   );
 }

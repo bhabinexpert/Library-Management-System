@@ -5,15 +5,39 @@
   width: 100%;
   padding: 1rem 2rem;
   display: flex;
-  justify-content: flex-end; /* Align nav items to right */
-  gap: 5rem;
+  justify-content: space-between; 
+  /* gap: 5rem; */
+  align-items: center;
   cursor: pointer;
-  height: 80px;
+  height: 60px;
   color: #91c8e4;
   /* background-color: #f5efff; */
   font-size: 20px;
   font-weight: bold;
+  
 }
+
+.logo{
+  display: flex;
+  align-items: center;
+}
+
+.logo .name {
+  
+  font-weight: bold;
+  font-size: 1.8rem;
+  background: linear-gradient(90deg, #c98b8b, #d6a77a, #f89249);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+.nav-links{
+  text-decoration: none;
+  display: flex;
+  gap: 5rem;
+}
+
 .nav:hover {
   transform: translateY(-3px);
 }
@@ -46,6 +70,10 @@
       letter-spacing: -1px;
       /* text-align: left; */
       margin: 4rem 0px 1.5rem 5rem;
+      background: linear-gradient(90deg, #9b827d, #8fade3, #2c13ed, #F333FF); /* adjust as you like */
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+
 }
 
 .intro-para{
@@ -59,6 +87,8 @@
 
 .landing{
   background-color: #F0E4D3;
+  height: 100vh;
+  
 }
 
 .center-box{
@@ -122,3 +152,11 @@
   box-shadow: 0 0 12px #2563eb;
   transform: translateX(3px);
 }
+
+.logo{
+  
+  height: 100px;
+  width: 100px;
+
+}
+
