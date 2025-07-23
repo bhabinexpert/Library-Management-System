@@ -80,11 +80,11 @@ html{
 
 .intro-para{
    font-weight: 600;
-   color: #c08081;
+   color: rgb(18, 1, 1);
    text-align: justify;
    justify-content: center;
-   margin: 3rem 4rem 0px 3rem;
-   font-size: large;
+   margin: 3rem 4rem 0 5.5rem;
+   font-size: 20px;
 }
 
 .landing{
@@ -131,7 +131,7 @@ html{
 .borrowbtn{
   background-color: #2563eb;
   color: white;
-  padding: 10px 16px;
+  padding: 16px 18px;
   border-radius: 12px;
   font-weight: 500;
   font-size: 16px;

@@ -1,0 +1,83 @@
+.body {
+  background: linear-gradient(90deg, #e3ba18a9, #8fade3, #d4d2dd, #fdfdfb);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 460px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 9px 10px 20px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Top Section */
+.top-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.top-section h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.top-section p {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* Input Container */
+.email-container,
+.password-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.email,
+.password {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  margin-left: 0.2rem;
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  outline: none;
+  transition: box-shadow 0.2s ease-in-out;
+  font-size: 1rem;
+}
+
+.input:focus, .input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+/* Button */
+.loginbtn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.loginbtn:hover {
+  background-color: #2563eb;
+}
+
+

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function LandingPage() {
   return (
     <>
@@ -5,8 +7,8 @@ function LandingPage() {
         
         <div className="navigation">
           <div className="logo">
-            <a href="#" className="name">GyanKosh </a>
             <img src="logo.png" />
+            <a href="#" className="name">GyanKosh </a>
           </div>
           <div className="nav-links">
             <a href="#explore" className="nav">Explore</a>
@@ -53,7 +55,9 @@ function LandingPage() {
                 flexWrap: "wrap",
               }}
             >
-              <button className="borrowbtn">🚀 Start Borrowing Free</button>
+              
+              <Link to="/login" className="borrowbtn">🚀 Start Borrowing Free</Link>
+
               <button className="signinbtn">Sign In to Library</button>
             </div>
           </div>
