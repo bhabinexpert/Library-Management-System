@@ -59,8 +59,15 @@
   font-size: 1rem;
 }
 
-.input:focus, .input:focus {
+.input:focus{
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+  
+
+}
+
+.input:focus::placeholder{
+  color: transparent; /* Makes it invisible */
+
 }
 
 /* Button */
@@ -80,4 +87,15 @@
   background-color: #2563eb;
 }
 
-
+.signupbtn{
+  text-decoration: underline;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+h4 {
+  display: flex;
+  justify-content: center;
+  padding: 2px 4px 4px 5px;
+  margin: 1rem 0 0 0;
+}

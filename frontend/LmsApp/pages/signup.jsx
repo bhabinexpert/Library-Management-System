@@ -1,0 +1,63 @@
+import { useState } from "react";
+import './login-Signup.css'
+export function Signup(){
+    const [email, setEmail] = useState("")
+    const[password, setPassword] = useState("")
+    const [fullName, setFullName] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [showPassword, setShowPassword] = useState("")
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if (!email || !password) {
+      alert("Email or password is missing");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("Invalid email address");
+      return;
+    }
+    if( password === !confirmPassword){
+        alert("Your password doesn't matched! Please enter the same password")
+        return
+    }
+
+
+    }
+    return(
+        <>
+        <div className="body">
+            <div className="login-card">
+                <div className="top-section">
+                    <h2>Don't have an Account? Let's get Started!!</h2>
+      <p>Join Gyan Kosh Today and Start exploring for free!</p>
+                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="name">
+                        <label className="fullname"> Enter your Full Name</label>
+                        <input type="text" className="input" placeholder="Bhabin Dulal" value={fullName} onChange={(e)=> setFullName(e.target.value)} required />
+                    </div>
+                    <div className="email-container">
+                    <label className="email"> Email Address</label>
+                    <input placeholder="bhabindada@gmail.com" className = 'input'type="email" value={email} onChange={(e)=> setEmail(e.target.value)} required />
+                    </div>
+                    <div className="password-container">
+                        <label className="password"> Password</label>
+                        <input placeholder="**********" className= 'input' type="password" value={password} onChange={(e) => setPassword(e.target.value)
+                        } required />
+                        <label className="confirm-pass"> Confirm Password</label>
+                        <input type="password" className="input" value={confirmPassword} onChange={(e)=> setConfirmPassword(e.target.value)} required />
+                    </div>
+                    <div className="login">
+                        <button className="loginbtn" type="submit">Login</button>
+                    </div>
+                </form>
+                <h4>Don't have any Account?</h4>
+                <p> <a href="" className="signupbtn"> Sign up</a></p>
+            </div>
+        </div>
+        
+        </>
+    )
+}
