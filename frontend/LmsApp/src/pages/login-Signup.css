@@ -107,7 +107,8 @@ h4 {
   font-size: 32px;
   font-weight: bold;
   background: linear-gradient(135deg, #90afd1, #405265);
-  -webkit-background-clip: text;
+  background-clip: text;
+-webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   
 }

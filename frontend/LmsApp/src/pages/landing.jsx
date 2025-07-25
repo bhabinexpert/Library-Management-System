@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Contact from "./contact.jsx";
 
 function LandingPage() {
   return (
@@ -81,8 +82,9 @@ function LandingPage() {
             </div>
 
             <div className="mission-cards">
+              
               <div className="card">
-                <div class="emoji">📚</div>
+                <div className="emoji">📚</div>
                 <h3>Vast Book Collection</h3>
                 <p>Access over 500+ books across all genres and categories, from bestsellers to academic texts.</p>
               </div>
@@ -100,7 +102,7 @@ function LandingPage() {
               </div>
 
               <div className="card">
-                <div class="emoji">⚡</div>
+                <div className="emoji">⚡</div>
                 <h3>Instant Borrowing</h3>
                 <p>No waiting in lines! Borrow books instantly and start reading within seconds.</p>
               </div>
@@ -108,8 +110,8 @@ function LandingPage() {
             </div>
           </div>
         </div>
-        <div className="contact" id="contact">
-          
+         <div className="contact" id="contact"> 
+          <Contact/>
         </div>
         <div className="dev-info" id="dev-info"></div>
         <div className="redirect"></div>
