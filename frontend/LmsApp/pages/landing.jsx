@@ -58,7 +58,7 @@ function LandingPage() {
               
               <Link to="/login" className="borrowbtn">🚀 Start Borrowing Free</Link>
 
-              <button className="signinbtn">Sign In to Library</button>
+              <Link to = '/signup' className="signinbtn">Sign In to Library</Link>
             </div>
           </div>
         </div>

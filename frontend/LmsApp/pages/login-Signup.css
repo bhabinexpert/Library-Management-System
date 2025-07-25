@@ -34,14 +34,17 @@
 
 /* Input Container */
 .email-container,
-.password-container {
+.password-container, .name {
   display: flex;
   flex-direction: column;
   margin-bottom: 1.5rem;
 }
+.confirm-pass{
+  margin-top: 1.5rem;
+}
 
 .email,
-.password {
+.password, .fullname, .confirm-pass{
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 0.5rem;
@@ -99,3 +102,25 @@ h4 {
   padding: 2px 4px 4px 5px;
   margin: 1rem 0 0 0;
 }
+
+.signuphead{
+  font-size: 32px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #90afd1, #405265);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+}
+.signup-para{
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: solid;
+  margin-top: 1.5rem;
+}
+
+h2{
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+

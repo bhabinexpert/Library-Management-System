@@ -1,5 +1,6 @@
 import { useState } from "react";
 import './login-Signup.css'
+import { Link } from "react-router-dom";
 export function Signup(){
     const [email, setEmail] = useState("")
     const[password, setPassword] = useState("")
@@ -30,8 +31,8 @@ export function Signup(){
         <div className="body">
             <div className="login-card">
                 <div className="top-section">
-                    <h2>Don't have an Account? Let's get Started!!</h2>
-      <p>Join Gyan Kosh Today and Start exploring for free!</p>
+                    <h2> <span className="signuphead">Don't have an Account? </span>Let's get Started!!</h2>
+      <p className="signup-para">Join Gyan Kosh Today and Start exploring for free!</p>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="name">
@@ -50,11 +51,13 @@ export function Signup(){
                         <input type="password" className="input" value={confirmPassword} onChange={(e)=> setConfirmPassword(e.target.value)} required />
                     </div>
                     <div className="login">
-                        <button className="loginbtn" type="submit">Login</button>
+                        <button className="loginbtn" type="submit">Signup</button>
                     </div>
                 </form>
-                <h4>Don't have any Account?</h4>
-                <p> <a href="" className="signupbtn"> Sign up</a></p>
+              <h4>Already have an account?</h4>
+              <p className="signupbtn">
+                <Link to = '/login'> Login </Link></p>
+               
             </div>
         </div>
         
