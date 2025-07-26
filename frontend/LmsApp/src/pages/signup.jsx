@@ -36,7 +36,7 @@ export function Signup(){
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="name">
-                        <label className="fullname"> Enter your Full Name</label>
+                        <label className="fullname"> Full Name</label>
                         <input type="text" className="input" placeholder="Bhabin Dulal" value={fullName} onChange={(e)=> setFullName(e.target.value)} required />
                     </div>
                     <div className="email-container">

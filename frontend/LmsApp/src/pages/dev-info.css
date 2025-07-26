@@ -96,3 +96,10 @@
 .social:hover {
   transform: scale(1.3);
 }
+
+/* Responsive Design Enhancements */
+@media (max-width: 600px) {
+  .card { max-width: 95%; padding: 1rem; }
+  .avatar-circle { width: 80px; height: 80px; }
+  .name { font-size: 1.2rem; }
+}

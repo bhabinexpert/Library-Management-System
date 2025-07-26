@@ -125,3 +125,11 @@ h2{
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
+/* Responsive Design Enhancements */
+@media (max-width: 600px) {
+  .login-card { width: 95%; padding: 1rem; }
+  .top-section h2 { font-size: 1.2rem; }
+  .signuphead { font-size: 1.2rem; }
+  .signup-para { font-size: 0.9rem; }
+}
+

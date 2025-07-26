@@ -170,6 +170,8 @@ function LandingPage() {
         </div>
 
         <div className="dev-info" id="dev-info">
+          {/* <h2 className="dev-heading">👥 Meet the Developer</h2> */}
+          
           <DeveloperInfo />
 
         </div>
