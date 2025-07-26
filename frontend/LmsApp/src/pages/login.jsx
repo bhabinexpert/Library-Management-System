@@ -6,7 +6,7 @@ export function Login() {
     const [password, setPassword] = useState("");
     // const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState("");
-    const handleSubmit = async (e) => {
+    const handleSubmit =  (e) => {
         e.preventDefault();
         if (!email || !password) {
             alert("Email or password is missing");

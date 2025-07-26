@@ -1,0 +1,98 @@
+.card {
+  max-width: 300px;
+  /* margin: 50px auto; */
+  background: white;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-circle {
+  width: 120px;
+  height: 120px;
+  background: #2563eb;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.emoji {
+  font-size: 3rem;
+}
+
+.name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.3rem;
+}
+
+.role {
+  font-size: 1rem;
+  color: #2563eb;
+  margin-bottom: 1.2rem;
+}
+
+.badges {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+
+.badge {
+  background: #f1f5f9;
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.icons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.icon {
+  background: #737883;
+  color: white;
+  padding: 0.6rem;
+  border-radius: 10px;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.icon:hover {
+  background: #1e40af;
+  transform: scale(1.1);
+}
+
+.socials {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.social {
+  font-size: 1.5rem;
+  text-decoration: none;
+  transition: transform 0.2s;
+}
+
+.social:hover {
+  transform: scale(1.3);
+}

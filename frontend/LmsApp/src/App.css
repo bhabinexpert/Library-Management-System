@@ -172,9 +172,10 @@
 
 /* //about -us  */
 .about-us {
-  padding: 80px 20px;
+  padding: 50px 20px;
   background: linear-gradient(135deg, #c7d9ea 0%, #8c6c3a 70%, #a6adc5 100%);
   text-align: center;
+  min-height: 100vh;
 }
 
 .about-gyankosh h1 {
@@ -191,7 +192,7 @@
 .about-para {
   font-size: 20px;
   color: #475569;
-  margin-bottom: 40px;
+  margin-bottom: 15px;
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
@@ -204,7 +205,7 @@
   border-radius: 50%;
   width: 96px;
   height: 96px;
-  margin: 0 auto 50px;
+  margin: 0 auto 15px;
   font-size: 40px;
   display: flex;
   align-items: center;
@@ -253,7 +254,7 @@
 }
 
 .mission-info{
-  height: 150px;
+  height: 110px;
   width: 600px;
   /* box-sizing: border-box;
   border: 2px solid burlywood;
@@ -303,3 +304,78 @@
   padding: 80px 20px;
    background: linear-gradient(135deg, #fceabb 0%, #1d4c5d 50%, #ad8d7c 100%);
 }
+
+/* stat grid animation css */
+
+.stat-card {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #2563eb;
+  margin-bottom: 8px;
+}
+
+.stat-title {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.stat-desc {
+  color: #021228;
+  font-size: 16px;
+  font-weight: 400px;
+}
+
+/* 
+  CSS keyframes animation called 'slideLoop'.
+  It creates a smooth back-and-forth horizontal sliding effect.
+*/
+@keyframes slideLoop {
+  0% {
+    transform: translateX(-20px); /* Start 20px to the left of original position */
+  }
+  50% {
+    transform: translateX(20px);  /* Move 20px to the right */
+  }
+  100% {
+    transform: translateX(-20px); /* Return back to the starting position (loop) */
+  }
+}
+
+/*
+  Apply the 'slideLoop' animation to the stats-grid container.
+  This animates the entire grid left and right in a continuous loop.
+*/
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  padding: 20px;
+  animation: slideLoop 5s ease-in-out infinite;
+  /* 
+    - slideLoop: name of the animation
+    - 5s: duration of one full loop (5 seconds)
+    
+    - infinite: runs forever in a loop
+  */
+}
+
+
+ .stats-grid:hover {
+  animation-play-state: paused;
+}
+
+.dev-info{
+  min-height: 100vh;
+  background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
