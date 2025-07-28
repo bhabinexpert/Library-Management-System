@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 
-const burrowerSchema = new Schema(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -23,5 +23,5 @@ const burrowerSchema = new Schema(
   { timestamps: true }
 );
 
-const burrowerModel = model("burrower", burrowerSchema)
-export default burrowerModel
+const userModel = model("user", userSchema)
+export default userModel

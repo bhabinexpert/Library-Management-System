@@ -64,3 +64,5 @@ export function Signup(){
         </>
     )
 }
+
+// frontend bata api call garera data backend ma pathuaney, token ko concept ley backend ma login authorization garney ani admin logged in chha ki user logged in chha kasari herrney ani individual jaty user create hunxa sabhko data dekhaune like burrowing list and every thing!!

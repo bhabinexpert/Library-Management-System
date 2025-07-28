@@ -17,11 +17,13 @@ app.use(cors({ option: "*" }));
 
 
 
+// hard coded the books details into db..
+
 // async function addBooksToDatabase() {
 //   try {
 //     // Connect to MongoDB
 //     await mongoose.connect(
-//       "mongodb+srv://bhabindulal46:l8JzOlS5wRAogJs5@cluster0.qpjfjsk.mongodb.net/LMS?retryWrites=true&w=majority&appName=Cluster0",
+//       "mongodb+srv://bhabindulal46:<db password>.qpjfjsk.mongodb.net/LMS?retryWrites=true&w=majority&appName=Cluster0",
 //       {
 //         useNewUrlParser: true,
 //         useUnifiedTopology: true,
@@ -47,3 +49,15 @@ app.use(cors({ option: "*" }));
 // }
 
 // addBooksToDatabase();
+
+//Db connection:
+mongoose.connect(process.env.MONGO_DB_URL).then(()=>{
+    console.log("Database cennection established");
+    app.listen(PORT, ()=>{
+        console.log("server is running at port:", PORT)
+    });
+}).catch((err)=>{
+    console.log("Database connection Error;", err)
+});
+
+
