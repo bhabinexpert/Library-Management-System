@@ -1,11 +1,15 @@
 import { useState } from "react";
 import "./login-Signup.css";
 import { Link } from "react-router-dom";
-export function Login() {
+import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+export  async  function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     // const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState("");
+    const useNavigate = navigate()
+
     const handleSubmit =  (e) => {
         e.preventDefault();
         if (!email || !password) {
@@ -17,6 +21,17 @@ export function Login() {
         if (!emailRegex.test(email)) {
             alert("Invalid email address");
             return;
+        }
+        try {
+            const response = await axios.post('http://localhost:9000/login',{
+                email,
+                password
+            });
+            localStorage.setItem("token", response.data.token);
+            alert("Login sucessfull!")
+            navigate('/home')
+        } catch (error) {
+            
         }
     };
     return (

@@ -1,16 +1,19 @@
 import { useState } from "react";
 import './login-Signup.css'
 import { Link } from "react-router-dom";
-export function Signup(){
+import { useNavigate } from "react-router-dom";
+export  async function Signup(){
     const [email, setEmail] = useState("")
     const[password, setPassword] = useState("")
     const [fullName, setFullName] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [showPassword, setShowPassword] = useState("")
+    const navigate = useNavigate()
+
     const handleSubmit = async (e)=>{
         e.preventDefault();
-        if (!email || !password) {
-      alert("Email or password is missing");
+        if (!email || !password || !confirmPassword || !fullName) {
+      alert("All fields are required");
       return;
     }
 
@@ -22,6 +25,20 @@ export function Signup(){
     if( password === !confirmPassword){
         alert("Your password doesn't matched! Please enter the same password")
         return
+    }
+    try {
+        const response = await axios.post("http://localhost:9000/signup",{
+            fullName,
+            email,
+            password,
+        });
+        localStorage.setItem("token", response.data.token);
+        alert("Signup Sucessfully!")
+        navigate("/home")
+        
+    } catch (error) {
+        alert(error.response?.data?.message || "signup failed")
+        
     }
 
 
@@ -65,4 +82,3 @@ export function Signup(){
     )
 }
 
-// frontend bata api call garera data backend ma pathuaney, token ko concept ley backend ma login authorization garney ani admin logged in chha ki user logged in chha kasari herrney ani individual jaty user create hunxa sabhko data dekhaune like burrowing list and every thing!!

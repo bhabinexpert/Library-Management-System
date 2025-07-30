@@ -1,39 +1,52 @@
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
-import userModel from '../models/user.models';
+import userModel from '../models/user.models.js';
 import { data } from 'react-router-dom';
 
 //Signup Controller!!
 
-export const registerUser = async (req, res)=>{
-    try {
-        const{name, email, password} = req.body;
+export const registerUser = async (req, res) => {
+  try {
+    const { fullName, email, password } = req.body;
 
-        //checking the email availability:
-        const userExist = await userModel.findOne({email})
-
-         if(userExist){
-            return res.status(400).json({message: "User with the provided  Email address already Exist"})
-        }
-
-        //hashing the pw
-
-        const hashedPw =  bcrypt.hash(password, 10)
-
-        //Save in the db:
-
-        const newUser = await userModel.create({
-            name,
-            email,
-            password:hashedPw,
-        })
-
-        res.status(202).json({message: "User registered Successfully!"})
-    } catch (error) {
-        res.status(500).json({message: "Error occured", error})
-        
+    // 1. Check if user already exists
+    const userExist = await userModel.findOne({ email });
+    if (userExist) {
+      return res.status(400).json({
+        message: "User with the provided email address already exists.",
+      });
     }
-}
+
+    // 2. Hash the password
+    const hashedPw = await bcrypt.hash(password, 10);
+
+    // 3. Save the user
+    const newUser = await userModel.create({
+      fullName,
+      email,
+      password: hashedPw,
+    });
+
+    // 4. Generate JWT Token
+    const token = jwt.sign(
+      { id: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+   
+
+    // 6. Send success response
+    res.status(201).json({
+      message: "User registered successfully!",
+      token,
+      user: newUser,
+    });
+
+  } catch (error) {
+    console.error("Error registering user:", error);
+    res.status(500).json({ message: "Internal server error!" });
+  }
+};
 
 
 export async function loginUser(req, res){
@@ -56,7 +69,7 @@ export async function loginUser(req, res){
 
         // Jwt token:
         const token = jwt.sign({
-            id: UNSAFE_RemixErrorBoundary,
+            id: user._id,
             role: user.role
         }, process.env.JWT_SECRET, {expiresIn: "1d",});
 
@@ -65,13 +78,13 @@ export async function loginUser(req, res){
             token,
             user: {
             _id : user._id,
-            name: user.name,
+            name: user.fullName,
             email: user.email
         },
         })
         
     }catch (err){
          console.log("Errror while login:"), err;
-    req.status(500).json({ message: "Internal server error!" });
+        req.status(500).json({ message: "Internal server error!" });
     }
 }

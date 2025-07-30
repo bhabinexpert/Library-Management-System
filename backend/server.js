@@ -3,7 +3,6 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
 import express from "express";
-import bookModel from "./models/books.models.js";
 import { loginUser, registerUser } from "./controllers/auth.controller.js";
 
 dotenv.config();
