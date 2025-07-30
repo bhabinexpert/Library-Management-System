@@ -2,7 +2,8 @@ import { useState } from "react";
 import './login-Signup.css'
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-export  async function Signup(){
+import axios from "axios";
+export   function Signup(){
     const [email, setEmail] = useState("")
     const[password, setPassword] = useState("")
     const [fullName, setFullName] = useState('')
@@ -22,7 +23,7 @@ export  async function Signup(){
       alert("Invalid email address");
       return;
     }
-    if( password === !confirmPassword){
+    if( password !== confirmPassword){
         alert("Your password doesn't matched! Please enter the same password")
         return
     }
@@ -38,6 +39,7 @@ export  async function Signup(){
         
     } catch (error) {
         alert(error.response?.data?.message || "signup failed")
+        console.log(error)
         
     }
 
@@ -52,13 +54,14 @@ export  async function Signup(){
       <p className="signup-para">Join Gyan Kosh Today and Start exploring for free!</p>
                 </div>
                 <form onSubmit={handleSubmit}>
-                    <div className="name">
+                    <div className="name-container">
                         <label className="fullname"> Full Name</label>
-                        <input type="text" className="input" placeholder="Bhabin Dulal" value={fullName} onChange={(e)=> setFullName(e.target.value)} required />
+                        <input placeholder="Bhabin Dulal" type="text" className='input'  value={fullName} onChange={(e)=> setFullName(e.target.value)} required />
                     </div>
+
                     <div className="email-container">
                     <label className="email"> Email Address</label>
-                    <input placeholder="bhabindada@gmail.com" className = 'input'type="email" value={email} onChange={(e)=> setEmail(e.target.value)} required />
+                    <input placeholder="bhabindada@gmail.com" className = 'input' type="email" value={email} onChange={(e)=> setEmail(e.target.value)} required />
                     </div>
                     <div className="password-container">
                         <label className="password"> Password</label>

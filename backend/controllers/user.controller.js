@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import userModel from "../models/user.models";
 
+
+//  checks the email while user tries to signup and checks the email exist in db or not if not then hash the pw and stores in db..
 export async function createUser(req, res) {
     try {
         const { fullName, email, password } = req.body;

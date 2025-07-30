@@ -76,10 +76,12 @@ export async function loginUser(req, res){
         res.status(200).json({
             message: "Login Successfull",
             token,
+            
             user: {
             _id : user._id,
             name: user.fullName,
-            email: user.email
+            email: user.email,
+            role: user.role
         },
         })
         

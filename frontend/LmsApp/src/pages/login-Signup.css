@@ -34,7 +34,7 @@
 
 /* Input Container */
 .email-container,
-.password-container, .name {
+.password-container, .name-container {
   display: flex;
   flex-direction: column;
   margin-bottom: 1.5rem;
@@ -55,7 +55,7 @@
 .input {
   width: 100%;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #2a2f36;
   border-radius: 0.375rem;
   outline: none;
   transition: box-shadow 0.2s ease-in-out;
@@ -64,13 +64,10 @@
 
 .input:focus{
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-  
-
 }
 
 .input:focus::placeholder{
-  color: transparent; /* Makes it invisible */
-
+  color: transparent; 
 }
 
 /* Button */

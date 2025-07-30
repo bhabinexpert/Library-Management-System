@@ -69,3 +69,4 @@ mongoose.connect(process.env.MONGO_DB_URL).then(()=>{
 //frontend bata endpoint call garera data backend ma pathuaney, token ko concept ley backend ma login authorization garney ani admin logged in chha ki user logged in chha kasari herrney ani individual jaty user create hunxa sabhko data dekhaune like burrowing list and every thing!!
 
 
+// authentication is done now the part of authoriation is still confusing , token and token headers..
