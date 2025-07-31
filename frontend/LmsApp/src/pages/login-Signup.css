@@ -121,6 +121,40 @@ h2{
   font-weight: bold;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
+/* Loader Spinner */
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.loader {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #007bff;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Custom Dialog */
+.dialog {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin: 12px auto;
+  max-width: 400px;
+  text-align: center;
+  font-size: 16px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
 
 /* Responsive Design Enhancements */
 @media (max-width: 600px) {
