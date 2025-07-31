@@ -33,6 +33,7 @@ export   function Signup(){
             email,
             password,
         });
+        
         localStorage.setItem("token", response.data.token);
         alert("Signup Sucessfully!")
         navigate("/home")
