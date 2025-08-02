@@ -8,7 +8,12 @@ import { data } from 'react-router-dom';
 export const registerUser = async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
-
+    
+     if (!email ||
+            !fullName ||
+            !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
     // 1. Check if user already exists
     const userExist = await userModel.findOne({ email });
     if (userExist) {

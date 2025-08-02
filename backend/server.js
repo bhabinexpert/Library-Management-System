@@ -6,6 +6,7 @@ import express from "express";
 import { loginUser, registerUser } from "./controllers/auth.controller.js";
 import { seedAdmin } from "./authorization/seedAdmin.js";
 
+
 dotenv.config();
 
 const app = express();
@@ -20,7 +21,7 @@ app.get("/", (req, res)=>{
     res.send("GOOD HEALTH")
 })
 
-app.post("/signup", registerUser)
+app.post("/signup",  registerUser)
 app.post("/login", loginUser)
 
 // hard coded the books details into db..
@@ -61,7 +62,6 @@ mongoose.connect(process.env.MONGO_DB_URL).then(()=>{
     console.log("Database cennection established");
     app.listen(PORT, ()=>{
         console.log("server is running at port:", PORT)
-        
         seedAdmin(); 
     });
 }).catch((err)=>{

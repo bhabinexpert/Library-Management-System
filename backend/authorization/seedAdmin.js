@@ -17,8 +17,6 @@ export const seedAdmin = async () => {
     });
 
     console.log("✅ Admin seeded successfully.");
-  } else {
-    console.log("ℹ️ Admin already exists.");
   }
 
 };
