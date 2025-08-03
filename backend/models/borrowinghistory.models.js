@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-
 const burrowingSchema = new Schema(
   {
     user: {
