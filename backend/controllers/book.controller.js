@@ -9,6 +9,18 @@ export const getAllBooks = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch books", message: err.message });
   }
 };
+// Totalbooks:
+
+export const countBooks = async(req, res)=>{
+  try {
+    const books = await bookModel.find();
+
+    const totalBooks = await bookModel.countDocuments();
+    res.status(200).json({totalBooks})
+  } catch (error) {
+    res.status(500).json({message: "Failed to count books", error})
+  }
+}
 
 // Get single book by ID
 export const getBookById = async (req, res) => {

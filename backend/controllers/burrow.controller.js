@@ -4,8 +4,8 @@ import BurrowingModel from "../models/burrowinghistory.models.js";
 export const getAllBurrowings = async (req, res) => {
   try {
     const burrowings = await BurrowingModel.find()
-      .populate("user", "fullName email")
-      .populate("book", "title author")
+      .populate("user", "fullName, email")
+      .populate("book", "title, author")
       .lean();
     res.status(200).json(burrowings);
   } catch (err) {
@@ -49,5 +49,37 @@ export const getBurrowingsByUser = async (req, res) => {
     res.status(200).json(burrowings);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch user's burrowing history", message: err.message });
+  }
+};
+
+// get the number of books which have been burrowed!
+
+export const getBorrowedBooksCount = async (req, res) =>{
+  try {
+    const count = await BurrowingModel.countDocuments({status:"burrowed"});
+
+    res.status(200).json({burrowedBooksCount: count});
+  } catch (error) {
+    console.error("Error fetching borrowed books count:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+}
+
+// get the number of books which are overdued:
+
+export const getOverdueBooksCount = async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Count documents where status is "borrowed" and dueDate < now
+    const count = await BurrowingModel.countDocuments({
+      status: "borrowed",
+      dueDate: { $lt: now },
+    });
+
+    res.status(200).json({ overdueBooksCount: count });
+  } catch (error) {
+    console.error("Error fetching overdue books count:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 };

@@ -194,5 +194,15 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-// logout fucntion
+// total number of burrowers;
+export const getBorrowerCount = async (req, res)=>{
+  try {
+    const count = await userModel.countDocuments({role: "burrower"});
+
+    res.status(200).json({burrowerCount: count});
+  } catch (error) {
+    console.error("Error fetching borrower count:", error);
+    res.status(500).json({message: "Internel server error."})
+  }
+}
 
