@@ -1,11 +1,1092 @@
-import React from 'react'
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-function Admin() {
+
+
+import './admin.css'
+function AdminDashboard() {
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const [users, setUsers] = useState([]);
+  const [books, setBooks] = useState([]);
+  const [borrowRecords, setBorrowRecords] = useState([]);
+  const [statistics, setStatistics] = useState({});
+
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const [showAddBookModal, setShowAddBookModal] = useState(false);
+  const [showEditBookModal, setShowEditBookModal] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
+
+  const [userForm, setUserForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    role: "user",
+  });
+
+  const [bookForm, setBookForm] = useState({
+    title: "",
+    author: "",
+    category: "",
+    isbn: "",
+    description: "",
+    publisher: "",
+    publishedYear: new Date().getFullYear(),
+    coverImage: "",
+    availableCopies: 1,
+    totalCopies: 1,
+  });
+
+  useEffect(() => {
+    loadData();
+  }, [activeTab]);
+
+  const loadData = async () => {
+    try {
+      const usersData = await getAllUsers();
+      const booksData = await getAllBooks();
+      const borrowData = await getAllBorrowRecords();
+      const stats = await getStatistics();
+
+      setUsers(usersData);
+      setBooks(booksData);
+      setBorrowRecords(borrowData);
+      setStatistics(stats);
+    } catch (err) {
+      console.error("Error loading data:", err);
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/"); // ✅ Proper hook usage
+  }
+
+
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    try {
+      const newUser = await addUser(userForm);
+      alert(`User ${newUser.fullName} added successfully!`);
+      resetUserForm();
+      setShowAddUserModal(false);
+      loadData();
+    } catch (err) {
+      alert("Error adding user.");
+    }
+  };
+
+  const handleEditUser = async (e) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+
+    try {
+      const updatedUser = await updateUser(selectedUser._id, {
+        fullName: userForm.fullName,
+        email: userForm.email,
+        role: userForm.role,
+      });
+      alert(`User ${updatedUser.fullName} updated successfully!`);
+      resetUserForm();
+      setSelectedUser(null);
+      setShowEditUserModal(false);
+      loadData();
+    } catch (err) {
+      alert("Error updating user.");
+    }
+  };
+
+  const handleDeleteUser = async (user) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${user.fullName}? This action cannot be undone.`
+      )
+    ) {
+      try {
+        await deleteUser(user._id);
+        alert(`User ${user.fullName} deleted successfully.`);
+        loadData();
+      } catch (err) {
+        alert("Error deleting user.");
+      }
+    }
+  };
+
+  const handleAddBook = async (e) => {
+    e.preventDefault();
+    try {
+      const newBook = await addBook({
+        ...bookForm,
+        availableCopies: bookForm.totalCopies,
+        coverImage: bookForm.coverImage || getRandomColor(),
+      });
+      alert(`Book "${newBook.title}" added successfully!`);
+      resetBookForm();
+      setShowAddBookModal(false);
+      loadData();
+    } catch (err) {
+      alert("Error adding book.");
+    }
+  };
+
+  const handleEditBook = async (e) => {
+    e.preventDefault();
+    if (!selectedBook) return;
+
+    try {
+      const updatedBook = await updateBook(selectedBook._id, {
+        title: bookForm.title,
+        author: bookForm.author,
+        category: bookForm.category,
+        isbn: bookForm.isbn,
+        description: bookForm.description,
+        publisher: bookForm.publisher,
+        publishedYear: bookForm.publishedYear,
+        coverImage: bookForm.coverImage,
+        totalCopies: bookForm.totalCopies,
+        availableCopies: bookForm.availableCopies,
+      });
+      alert(`Book "${updatedBook.title}" updated successfully!`);
+      resetBookForm();
+      setSelectedBook(null);
+      setShowEditBookModal(false);
+      loadData();
+    } catch (err) {
+      alert("Error updating book.");
+    }
+  };
+
+  const handleDeleteBook = async (book) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${book.title}"? This action cannot be undone.`
+      )
+    ) {
+      try {
+        await deleteBook(book._id);
+        alert(`Book "${book.title}" deleted successfully.`);
+        loadData();
+      } catch (err) {
+        alert("Error deleting book.");
+      }
+    }
+  };
+
+  const resetUserForm = () => {
+    setUserForm({
+      fullName: "",
+      email: "",
+      password: "",
+      role: "user",
+    });
+  };
+
+  const resetBookForm = () => {
+    setBookForm({
+      title: "",
+      author: "",
+      category: "",
+      isbn: "",
+      description: "",
+      publisher: "",
+      publishedYear: new Date().getFullYear(),
+      coverImage: "",
+      availableCopies: 1,
+      totalCopies: 1,
+    });
+  };
+
+  const getRandomColor = () => {
+    const colors = [
+      "#3b82f6",
+      "#10b981",
+      "#f59e0b",
+      "#ef4444",
+      "#8b5cf6",
+      "#ec4899",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+  const openEditUser = (user) => {
+    setSelectedUser(user);
+    setUserForm({
+      fullName: user.fullName,
+      email: user.email,
+      password: "",
+      role: user.role,
+    });
+    setShowEditUserModal(true);
+  };
+
+  const openEditBook = (book) => {
+    setSelectedBook(book);
+    setBookForm({
+      title: book.title,
+      author: book.author,
+      category: book.category,
+      isbn: book.isbn,
+      description: book.description,
+      publisher: book.publisher,
+      publishedYear: book.publishedYear,
+      coverImage: book.coverImage,
+      availableCopies: book.availableCopies,
+      totalCopies: book.totalCopies,
+    });
+    setShowEditBookModal(true);
+  };
+
+ 
+
   return (
-    <div>
-      <h1>Hello i am Admin!</h1>
+    <div className="admin-panel">
+      {/* Header */}
+      <header className="admin-header">
+        <div>
+          <h1 className="admin-title">LibraryHub Admin Panel</h1>
+          <p className="admin-welcome">
+            Welcome back, !
+          </p>
+        </div>
+
+        <button onClick={handleLogout} className="logout-button">
+          🚪 Logout
+        </button>
+      </header>
+
+      {/* Navigation Tabs */}
+      <nav className="admin-nav">
+        <div className="nav-tabs">
+          {[
+            { id: "overview", label: "📊 Overview", icon: "📊" },
+            { id: "users", label: "👥 Users", icon: "👥" },
+            { id: "books", label: "📚 Books", icon: "📚" },
+            { id: "borrowing", label: "📖 Borrowing", icon: "📖" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`nav-tab ${activeTab === tab.id ? "active" : ""}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="admin-main">
+        {/* Overview Tab */}
+        {activeTab === "overview" && (
+          <div>
+            <h2 className="section-title">Library Statistics</h2>
+
+            {/* Statistics Cards */}
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-content">
+                  <div className="stat-icon">📚</div>
+                  <div>
+                    <div className="stat-value blue">
+                      {statistics.totalBooks}
+                    </div>
+                    <div className="stat-label">Total Books</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-content">
+                  <div className="stat-icon">👥</div>
+                  <div>
+                    <div className="stat-value green">
+                      {statistics.totalUsers}
+                    </div>
+                    <div className="stat-label">Active Users</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-content">
+                  <div className="stat-icon">📖</div>
+                  <div>
+                    <div className="stat-value yellow">
+                      {statistics.totalBorrowedBooks}
+                    </div>
+                    <div className="stat-label">Books Borrowed</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-content">
+                  <div className="stat-icon">⚠️</div>
+                  <div>
+                    <div className="stat-value red">
+                      {statistics.overdueBooks}
+                    </div>
+                    <div className="stat-label">Overdue Books</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Categories Chart */}
+            <div className="category-section">
+              <h3 className="section-subtitle">Books by Category</h3>
+              <div className="category-grid">
+                {Object.entries(statistics.categoryCounts || {}).map(
+                  ([category, count]) => (
+                    <div key={category} className="category-item">
+                      <span className="category-name">{category}</span>
+                      <span className="category-count">{count}</span>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Users Tab */}
+        {activeTab === "users" && (
+          <div>
+            <div className="section-header">
+              <h2 className="section-title">
+                User Management ({users.length} users)
+              </h2>
+
+              <button
+                onClick={() => setShowAddUserModal(true)}
+                className="add-button"
+              >
+                ➕ Add New User
+              </button>
+            </div>
+
+            {/* Users Table */}
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Borrowed Books</th>
+                    <th>Join Date</th>
+                    <th className="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => {
+                    const userStats = { currentBorrows: 0 }; // Replace with actual data
+
+                    return (
+                      <tr key={user._id}>
+                        <td>
+                          <div>
+                            <div className="user-name">{user.fullName}</div>
+                            <div className="user-email">{user.email}</div>
+                          </div>
+                        </td>
+                        <td>
+                          <span
+                            className={`role-badge ${
+                              user.role === "admin" ? "admin" : "user"
+                            }`}
+                          >
+                            {user.role === "admin" ? "👑 Admin" : "👤 User"}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="borrowed-count">
+                            {userStats.currentBorrows}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="date-text">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </span>
+                        </td>
+                        <td className="text-center">
+                          <div className="action-buttons">
+                            <button
+                              onClick={() => openEditUser(user)}
+                              className="edit-button"
+                            >
+                              ✏️ Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUser(user)}
+                              disabled={user._id === currentUser?._id}
+                              className={`delete-button ${
+                                user._id === currentUser?._id ? "disabled" : ""
+                              }`}
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Books Tab */}
+        {activeTab === "books" && (
+          <div>
+            <div className="section-header">
+              <h2 className="section-title">
+                Book Management ({books.length} books)
+              </h2>
+
+              <button
+                onClick={() => setShowAddBookModal(true)}
+                className="add-button"
+              >
+                ➕ Add New Book
+              </button>
+            </div>
+
+            {/* Books Grid */}
+            <div className="books-grid">
+              {books.map((book) => (
+                <div key={book.id} className="book-card">
+                  {/* Book cover */}
+                  <div
+                    className="book-cover"
+                    style={{
+                      background: `linear-gradient(135deg, ${book.coverImage}, ${book.coverImage}dd)`,
+                    }}
+                  >
+                    <div className="book-icon">📖</div>
+                    <div
+                      className={`availability-badge ${
+                        book.availableCopies > 0 ? "available" : "unavailable"
+                      }`}
+                    >
+                      {book.availableCopies}/{book.totalCopies} Available
+                    </div>
+                  </div>
+
+                  {/* Book details */}
+                  <div className="book-details">
+                    <div className="book-category">{book.category}</div>
+
+                    <h3 className="book-title">{book.title}</h3>
+
+                    <p className="book-author">by {book.author}</p>
+
+                    <div className="book-meta">
+                      <div className="book-rating">
+                        <span className="star-icon">⭐</span>
+                        <span>{book.rating}</span>
+                      </div>
+                      <div className="book-pages">{book.pages} pages</div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="book-actions">
+                      <button
+                        onClick={() => openEditBook(book)}
+                        className="edit-book-button"
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteBook(book)}
+                        className="delete-book-button"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Borrowing Tab */}
+        {activeTab === "borrowing" && (
+          <div>
+            <h2 className="section-title">
+              Borrowing History ({borrowingHistory.length} records)
+            </h2>
+
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Book</th>
+                    <th>Borrow Date</th>
+                    <th>Due Date</th>
+                    <th className="text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {borrowingHistory.map((record) => {
+                    const user = getUserDetails(record.user);
+                    const book = getBookDetails(record.book);
+                    const isOverdue =
+                      record.status === "borrowed" &&
+                      new Date() > record.dueDate;
+
+                    return (
+                      <tr key={record._id}>
+                        <td>
+                          <div>
+                            <div className="user-name">
+                              {user ? user.fullName : "Unknown User"}
+                            </div>
+                            <div className="user-email">{user?.email}</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div>
+                            <div className="user-name">
+                              {book?.title || "Unknown Book"}
+                            </div>
+                            <div className="user-email">by {book?.author}</div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="date-text">
+                            {new Date(record.borrowDate).toLocaleDateString()}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            className={`date-text ${
+                              isOverdue ? "overdue" : ""
+                            }`}
+                          >
+                            {new Date(record.dueDate).toLocaleDateString()}
+                          </span>
+                        </td>
+                        <td className="text-center">
+                          <span
+                            className={`status-badge ${
+                              record.status === "returned"
+                                ? "returned"
+                                : isOverdue
+                                ? "overdue"
+                                : "borrowed"
+                            }`}
+                          >
+                            {record.status === "returned"
+                              ? "✅ Returned"
+                              : isOverdue
+                              ? "⚠️ Overdue"
+                              : "📖 Borrowed"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3 className="modal-title">Add New User</h3>
+
+            <form onSubmit={handleAddUser}>
+              <div className="form-group">
+                <label>Full Name *</label>
+                <input
+                  type="text"
+                  value={userForm.fullName}
+                  onChange={(e) =>
+                    setUserForm({ ...userForm, fullName: e.target.value })
+                  }
+                  required
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Email *</label>
+                <input
+                  type="email"
+                  value={userForm.email}
+                  onChange={(e) =>
+                    setUserForm({ ...userForm, email: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Password *</label>
+                <input
+                  type="password"
+                  value={userForm.password}
+                  onChange={(e) =>
+                    setUserForm({ ...userForm, password: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Role</label>
+                <select
+                  value={userForm.role}
+                  onChange={(e) =>
+                    setUserForm({ ...userForm, role: e.target.value })
+                  }
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddUserModal(false);
+                    resetUserForm();
+                  }}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="submit-button">
+                  Add User
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Book Modal */}
+      {showAddBookModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3 className="modal-title">Add New Book</h3>
+
+            <form onSubmit={handleAddBook}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Title *</label>
+                  <input
+                    type="text"
+                    value={bookForm.title}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, title: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Author *</label>
+                  <input
+                    type="text"
+                    value={bookForm.author}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, author: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Category *</label>
+                  <input
+                    type="text"
+                    value={bookForm.category}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, category: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>ISBN</label>
+                  <input
+                    type="text"
+                    value={bookForm.isbn}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, isbn: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={bookForm.description}
+                  onChange={(e) =>
+                    setBookForm({ ...bookForm, description: e.target.value })
+                  }
+                  rows={3}
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Published Year</label>
+                  <input
+                    type="number"
+                    value={bookForm.publishedYear}
+                    onChange={(e) =>
+                      setBookForm({
+                        ...bookForm,
+                        publishedYear: parseInt(e.target.value),
+                      })
+                    }
+                    min="1000"
+                    max={new Date().getFullYear()}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Pages</label>
+                  <input
+                    type="number"
+                    value={bookForm.pages}
+                    onChange={(e) =>
+                      setBookForm({
+                        ...bookForm,
+                        pages: parseInt(e.target.value),
+                      })
+                    }
+                    min="1"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Total Copies</label>
+                  <input
+                    type="number"
+                    value={bookForm.totalCopies}
+                    onChange={(e) =>
+                      setBookForm({
+                        ...bookForm,
+                        totalCopies: parseInt(e.target.value),
+                      })
+                    }
+                    min="1"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Language</label>
+                  <input
+                    type="text"
+                    value={bookForm.language}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, language: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Publisher</label>
+                  <input
+                    type="text"
+                    value={bookForm.publisher}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, publisher: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Tags (comma-separated)</label>
+                <input
+                  type="text"
+                  value={bookForm.tags}
+                  onChange={(e) =>
+                    setBookForm({ ...bookForm, tags: e.target.value })
+                  }
+                  placeholder="fiction, mystery, thriller"
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddBookModal(false);
+                    resetBookForm();
+                  }}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="submit-button">
+                  Add Book
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditUserModal && selectedUser && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3 className="modal-title">Edit User: {selectedUser.fullName}</h3>
+
+            <form onSubmit={handleEditUser}>
+              <div className="form-group">
+                <label>Full Name *</label>
+                <input
+                  type="text"
+                  value={userForm.fullName}
+                  onChange={(e) =>
+                    setUserForm({ ...userForm, fullName: e.target.value })
+                  }
+                  required
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Email *</label>
+                <input
+                  type="email"
+                  value={userForm.email}
+                  onChange={(e) =>
+                    setUserForm({ ...userForm, email: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Role</label>
+                <select
+                  value={userForm.role}
+                  onChange={(e) =>
+                    setUserForm({ ...userForm, role: e.target.value })
+                  }
+                  disabled={selectedUser.id === currentUser?.id}
+                  className={
+                    selectedUser.id === currentUser?.id ? "disabled" : ""
+                  }
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditUserModal(false);
+                    setSelectedUser(null);
+                    resetUserForm();
+                  }}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="submit-button">
+                  Update User
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Book Modal */}
+      {showEditBookModal && selectedBook && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3 className="modal-title">Edit Book: {selectedBook.title}</h3>
+
+            <form onSubmit={handleEditBook}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Title *</label>
+                  <input
+                    type="text"
+                    value={bookForm.title}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, title: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Author *</label>
+                  <input
+                    type="text"
+                    value={bookForm.author}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, author: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Category *</label>
+                  <input
+                    type="text"
+                    value={bookForm.category}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, category: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>ISBN</label>
+                  <input
+                    type="text"
+                    value={bookForm.isbn}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, isbn: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={bookForm.description}
+                  onChange={(e) =>
+                    setBookForm({ ...bookForm, description: e.target.value })
+                  }
+                  rows={3}
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Published Year</label>
+                  <input
+                    type="number"
+                    value={bookForm.publishedYear}
+                    onChange={(e) =>
+                      setBookForm({
+                        ...bookForm,
+                        publishedYear: parseInt(e.target.value),
+                      })
+                    }
+                    min="1000"
+                    max={new Date().getFullYear()}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Pages</label>
+                  <input
+                    type="number"
+                    value={bookForm.pages}
+                    onChange={(e) =>
+                      setBookForm({
+                        ...bookForm,
+                        pages: parseInt(e.target.value),
+                      })
+                    }
+                    min="1"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Total Copies</label>
+                  <input
+                    type="number"
+                    value={bookForm.totalCopies}
+                    onChange={(e) =>
+                      setBookForm({
+                        ...bookForm,
+                        totalCopies: parseInt(e.target.value),
+                      })
+                    }
+                    min="1"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Language</label>
+                  <input
+                    type="text"
+                    value={bookForm.language}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, language: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Publisher</label>
+                  <input
+                    type="text"
+                    value={bookForm.publisher}
+                    onChange={(e) =>
+                      setBookForm({ ...bookForm, publisher: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Tags (comma-separated)</label>
+                <input
+                  type="text"
+                  value={bookForm.tags}
+                  onChange={(e) =>
+                    setBookForm({ ...bookForm, tags: e.target.value })
+                  }
+                  placeholder="fiction, mystery, thriller"
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditBookModal(false);
+                    setSelectedBook(null);
+                    resetBookForm();
+                  }}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="submit-button">
+                  Update Book
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
 
-export default Admin
+export default AdminDashboard;
