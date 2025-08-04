@@ -19,6 +19,11 @@ const burrowingSchema = new Schema(
     dueDate: {
       type: Date,
       required: true,
+      default:()=>{
+        const now = new Date();
+        now.setDate(now.getDate() + 15); // due date after 15 days of burrowing date
+        return now
+      }
     },
     returnDate: {
       type: Date,
@@ -26,8 +31,8 @@ const burrowingSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["borrowed", "returned", "overdue"],
-      default: "borrowed",
+      enum: ["burrowed", "returned", "overdue"],
+      default: "burrowed",
     },
   },
   { timestamps: true }

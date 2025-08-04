@@ -3,7 +3,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
 import express from "express";
-import {loginUser, registerUser } from "./controllers/auth.controller.js";
+import {getBorrowerCount, loginUser, registerUser } from "./controllers/auth.controller.js";
 import { seedAdmin } from "./authorization/seedAdmin.js";
 
 //Import your backend controllers according to your schema and models
@@ -14,11 +14,12 @@ import {
   deleteBook,
   createBook,
   getBookById,
+  countBooks,
 } from "../backend/controllers/book.controller.js";
 
 
 import { protect } from "./authorization/auth.middleware.js";
-import { createBurrowing, getAllBurrowings, getBurrowingsByUser, markReturn } from "./controllers/burrow.controller.js";
+import { createBurrowing, getAllBurrowings, getBorrowedBooksCount, getBurrowingsByUser, getOverdueBooksCount, markReturn } from "./controllers/burrow.controller.js";
 
 
 
@@ -43,8 +44,15 @@ app.post("/login", loginUser)
 
 app.get("/user", getAllBooks)
 
-app.get('/admin/dashboard',protect, getAllBooks, getAllBurrowings,createBook, getBookById,updateBook, deleteBook, createBurrowing, markReturn,getBurrowingsByUser)
+app.get('/admin/dashboard',protect, getAllBooks, getAllBurrowings, getBookById, markReturn,getBurrowingsByUser)
 
+app.get('/count', countBooks);
+
+app.get('/burrowercount', getBorrowerCount)
+
+app.get('/burrowedbookcount', getBorrowedBooksCount)
+
+app.get('/overdue-books-count', getOverdueBooksCount)
 
 
 
