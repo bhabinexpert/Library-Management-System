@@ -4,20 +4,6 @@ import axios from "axios";
 import "./login-Signup.css";
 
 
-// Converts a full name or any text string into a clean, URL-friendly slug
-const slugify = (text) => {
-  // 🛡️ Check if the input is missing or not a string
-  // Prevents errors like "Cannot read properties of undefined (reading 'trim')"
-  if (!text || typeof text !== "string") return "user"; // default fallback
-
-  // ✂️ Remove whitespace from beginning and end
-  // 🔡 Convert all characters to lowercase for consistency
-  // 🔁 Replace all spaces (or tabs/newlines) with a single dash/hyphen
-  return text.trim().toLowerCase().replace(/\s+/g, "-");
-};
-
-
-
 export function Login() {
   const [email, setEmail] = useState("");              // User email input
   const [password, setPassword] = useState("");        // User password input
@@ -55,6 +41,7 @@ export function Login() {
       const response = await axios.post("http://localhost:9000/login", {
         email,
         password,
+        
       });
 
       // ✅ If login is successful (HTTP 200)
@@ -66,24 +53,25 @@ export function Login() {
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("id", user._id);
 
-        const slugName = slugify(user.fullName); // Format full name for URL
         showDialog("Login successful!");
 
         // ⏳ Short delay to show message before redirecting
         setTimeout(() => {
           // 🚀 Redirect user based on their role
           if (user.role === "admin") {
-            navigate(`/admin/${slugName}/dashboard`);
+            navigate('/admin/dashboard');
           } else {
-            navigate(`/${slugName}/home`);
+            navigate('/user/home');
           }
         }, 1000);
       }
     } catch (error) {
       console.error("Login error:", error);
+      console.log(error)
       // 🔴 Show custom error message
       showDialog(
         error.response?.data?.message || "Login failed. Please try again."
+        
       );
     } finally {
       setLoading(false); // Hide loader after login completes
@@ -108,12 +96,12 @@ export function Login() {
       // ✅ If token is valid, auto-redirect user to dashboard
       if (response.status === 200 && response.data.user) {
         const { role, fullName } = response.data.user;
-        const slugName = slugify(fullName);
+       
 
         if (role === "admin") {
-          navigate(`/admin/${slugName}/dashboard`);
+          navigate('/admin/dashboard');
         } else {
-          navigate(`/${slugName}/home`);
+          navigate('user/home');
         }
       }
     } catch (error) {
