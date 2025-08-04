@@ -3,8 +3,24 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
 import express from "express";
-import { loginUser, registerUser } from "./controllers/auth.controller.js";
+import {loginUser, registerUser } from "./controllers/auth.controller.js";
 import { seedAdmin } from "./authorization/seedAdmin.js";
+
+//Import your backend controllers according to your schema and models
+
+import {
+  getAllBooks,
+  updateBook,
+  deleteBook,
+  createBook,
+  getBookById,
+} from "../backend/controllers/book.controller.js";
+
+
+import { protect } from "./authorization/auth.middleware.js";
+import { createBurrowing, getAllBurrowings, getBurrowingsByUser, markReturn } from "./controllers/burrow.controller.js";
+
+
 
 
 dotenv.config();
@@ -22,7 +38,15 @@ app.get("/", (req, res)=>{
 })
 
 app.post("/signup",  registerUser)
+
 app.post("/login", loginUser)
+
+app.get("/user", getAllBooks)
+
+app.get('/admin/dashboard',protect, getAllBooks, getAllBurrowings,createBook, getBookById,updateBook, deleteBook, createBurrowing, markReturn,getBurrowingsByUser)
+
+
+
 
 // hard coded the books details into db..
 
