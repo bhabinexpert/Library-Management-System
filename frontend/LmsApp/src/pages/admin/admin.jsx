@@ -1,11 +1,74 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import "./admin.css";
 
-
-
-import './admin.css'
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
+
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const fetchBookCount = async () => {
+      try {
+        const response = await axios.get("http://localhost:9000/count");
+        console.log("Axios Response:", response); // log entire response
+        console.log("Total Books from backend:", response.data.totalBooks);
+        console.log(response.data.totalBooks);
+        setCount(response.data.totalBooks);
+      } catch (error) {
+        console.log("Error fetching book Count:", error);
+      }
+    };
+
+    fetchBookCount();
+  }, []);
+
+  const[ burrowerCount, setBurrowerCount] = useState(0);
+
+  useEffect(()=>{
+    const fetchBorrowerCount = async ()=>{
+      try {
+        const response = await axios.get("http://localhost:9000/burrowercount");
+        setBurrowerCount(response.data.burrowerCount);
+      } catch (error) {
+        console.error("Error fetching borrower Count", error)
+      }
+    };
+
+    fetchBorrowerCount();
+  },[]);
+
+  const [burrowedBooksCount, setBurowedBooksCount] = useState(0);
+
+  useEffect(()=>{
+    const fetchBurrowedBookscount = async()=>{
+      try {
+        const response = await axios.get("http://localhost:9000/burrowedbookcount");
+        setBurowedBooksCount(response.data.burrowedBooksCount)
+      } catch (error) {
+        console.error("Error fetching burrowed book count:", error)
+      }
+    };
+
+    fetchBurrowedBookscount();
+  }, []);
+
+  const [overdueBooksCount, setOverdueBooksCount] = useState(0);
+
+  useEffect(() => {
+    const fetchOverdueBooksCount = async () => {
+      try {
+        const response = await axios.get("http://localhost:9000/overdue-books-count");
+        setOverdueBooksCount(response.data.overdueBooksCount);
+      } catch (error) {
+        console.error("Error fetching overdue books count:", error);
+      }
+    };
+
+    fetchOverdueBooksCount();
+  }, []);
+
 
   const [users, setUsers] = useState([]);
   const [books, setBooks] = useState([]);
@@ -66,8 +129,7 @@ function AdminDashboard() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/"); // ✅ Proper hook usage
-  }
-
+  };
 
   const handleAddUser = async (e) => {
     e.preventDefault();
@@ -242,17 +304,13 @@ function AdminDashboard() {
     setShowEditBookModal(true);
   };
 
- 
-
   return (
     <div className="admin-panel">
       {/* Header */}
       <header className="admin-header">
         <div>
-          <h1 className="admin-title">LibraryHub Admin Panel</h1>
-          <p className="admin-welcome">
-            Welcome back, !
-          </p>
+          <h1 className="admin-title">GyanKosh Admin Panel</h1>
+          <p className="admin-welcome">Welcome back,{}!</p>
         </div>
 
         <button onClick={handleLogout} className="logout-button">
@@ -293,9 +351,7 @@ function AdminDashboard() {
                 <div className="stat-content">
                   <div className="stat-icon">📚</div>
                   <div>
-                    <div className="stat-value blue">
-                      {statistics.totalBooks}
-                    </div>
+                    <div className="stat-value blue">{(count)}</div>
                     <div className="stat-label">Total Books</div>
                   </div>
                 </div>
@@ -306,7 +362,8 @@ function AdminDashboard() {
                   <div className="stat-icon">👥</div>
                   <div>
                     <div className="stat-value green">
-                      {statistics.totalUsers}
+                      {burrowerCount} 
+                      {/* {total users in db} */}
                     </div>
                     <div className="stat-label">Active Users</div>
                   </div>
@@ -318,7 +375,7 @@ function AdminDashboard() {
                   <div className="stat-icon">📖</div>
                   <div>
                     <div className="stat-value yellow">
-                      {statistics.totalBorrowedBooks}
+                      {burrowedBooksCount}
                     </div>
                     <div className="stat-label">Books Borrowed</div>
                   </div>
@@ -330,7 +387,7 @@ function AdminDashboard() {
                   <div className="stat-icon">⚠️</div>
                   <div>
                     <div className="stat-value red">
-                      {statistics.overdueBooks}
+                      {overdueBooksCount}
                     </div>
                     <div className="stat-label">Overdue Books</div>
                   </div>
@@ -521,7 +578,7 @@ function AdminDashboard() {
         {activeTab === "borrowing" && (
           <div>
             <h2 className="section-title">
-              Borrowing History ({borrowingHistory.length} records)
+              Borrowing History ({borrowRecords.length} records)
             </h2>
 
             <div className="table-container">
@@ -536,7 +593,7 @@ function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {borrowingHistory.map((record) => {
+                  {borrowRecords.map((record) => {
                     const user = getUserDetails(record.user);
                     const book = getBookDetails(record.book);
                     const isOverdue =
