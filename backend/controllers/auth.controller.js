@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import userModel from '../models/user.models.js';
 
+
 // User Registration Controller
 export const registerUser = async (req, res) => {
   try {
@@ -109,3 +110,89 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: "Internal server error!" });
   }
 };
+
+// updateUser 
+export const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { fullName, email, password, role } = req.body;
+
+    // Validate required fields
+    if (!fullName || !email || !role) {
+      return res.status(400).json({ message: "Full name, email, and role are required." });
+    }
+
+    // Match schema validations
+    const nameRegex = /^[A-Za-z\s]+$/;
+    const emailRegex = /^\S+@\S+\.\S+$/;
+
+    if (!nameRegex.test(fullName)) {
+      return res.status(400).json({ message: "Name should contain only letters and spaces." });
+    }
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format." });
+    }
+
+    if (!["user", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role provided." });
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    // Check for email uniqueness
+    if (email !== user.email) {
+      const emailExists = await userModel.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: "Email is already in use." });
+      }
+    }
+
+    // Prepare update object
+    const updates = {
+      fullName,
+      email,
+      role,
+    };
+
+    if (password && password.trim() !== "") {
+      if (password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long." });
+      }
+      updates.password = await bcrypt.hash(password, 10);
+    }
+
+    const updatedUser = await userModel.findByIdAndUpdate(userId, updates, { new: true });
+
+    res.status(200).json({
+      message: "User updated successfully.",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+// ✅ deleteUser Controller
+
+// Delete User
+export const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await userModel.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    await userModel.findByIdAndDelete(userId);
+
+    res.status(200).json({ message: "User deleted successfully." });
+  } catch (error) {
+    console.error("Delete error:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+// logout fucntion
+

@@ -1,4 +1,4 @@
-import BurrowingModel from "../models/burrowing.models.js";
+import BurrowingModel from "../models/burrowinghistory.models.js";
 
 // Get all burrowing history
 export const getAllBurrowings = async (req, res) => {
@@ -44,7 +44,7 @@ export const markReturn = async (req, res) => {
 export const getBurrowingsByUser = async (req, res) => {
   try {
     const burrowings = await BurrowingModel.find({ user: req.params.userId })
-      .populate("book", "title author")
+      .populate("book", "title, author")
       .lean();
     res.status(200).json(burrowings);
   } catch (err) {
