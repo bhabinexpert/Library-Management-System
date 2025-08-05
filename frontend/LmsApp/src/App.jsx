@@ -6,8 +6,9 @@ import { Signup } from "./pages/signup.jsx";
 import Contact from "./pages/contact.jsx";
 import ProtectedRoute from "./components/protectedRoute.jsx";
 // import Admin from "./pages/admin/admin.jsx"
-import User from "./pages/user/user.jsx";
+// import User from "./pages/user/user.jsx";
 import AdminDashboard from "./pages/admin/admin.jsx";
+import UserDashboard from "./pages/user/user.jsx";
 function App() {
   return (
     <>
@@ -25,8 +26,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        <Route path="/user/home" element={<User />} />
+        <Route path="/user/home" element={<UserDashboard />} />
       </Routes>
     </>
   );

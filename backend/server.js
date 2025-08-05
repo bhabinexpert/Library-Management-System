@@ -3,7 +3,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
 import express from "express";
-import {getBorrowerCount, loginUser, registerUser } from "./controllers/auth.controller.js";
+import {getBurrowerCount, loginUser, registerUser } from "./controllers/auth.controller.js";
 import { seedAdmin } from "./authorization/seedAdmin.js";
 
 //Import your backend controllers according to your schema and models
@@ -19,7 +19,7 @@ import {
 
 
 import { protect } from "./authorization/auth.middleware.js";
-import { createBurrowing, getAllBurrowings, getBorrowedBooksCount, getBurrowingsByUser, getOverdueBooksCount, markReturn } from "./controllers/burrow.controller.js";
+import { createBurrowing, getAllBurrowings, getBorrowedBooksCount, getBurrowingsByUser, getOverdueBooksCount,  returnBook } from "./controllers/burrow.controller.js";
 
 
 
@@ -44,15 +44,26 @@ app.post("/login", loginUser)
 
 app.get("/user", getAllBooks)
 
-app.get('/admin/dashboard',protect, getAllBooks, getAllBurrowings, getBookById, markReturn,getBurrowingsByUser)
+app.get('/admin/dashboard',protect,  getAllBurrowings, getBookById, returnBook,getBurrowingsByUser, getOverdueBooksCount)
+
+app.get('/user/home', protect,countBooks, getAllBooks, getBurrowerCount, getBorrowedBooksCount, getOverdueBooksCount, getAllBurrowings, returnBook,getBurrowingsByUser)
 
 app.get('/count', countBooks);
 
-app.get('/burrowercount', getBorrowerCount)
+app.get('/burrowercount', getBurrowerCount)
 
 app.get('/burrowedbookcount', getBorrowedBooksCount)
 
 app.get('/overdue-books-count', getOverdueBooksCount)
+
+app.get('/books', getAllBooks);
+
+app.use('/burrowstatus', getAllBurrowings);
+
+app.put("/return/:id",protect, returnBook)
+
+app.put("/burrowstatus/:userId", protect, getBurrowingsByUser)
+
 
 
 

@@ -96,6 +96,8 @@ export function Login() {
       // ✅ If token is valid, auto-redirect user to dashboard
       if (response.status === 200 && response.data.user) {
         const { role, fullName } = response.data.user;
+        
+        localStorage.setItem("user", response.data.fullName)
        
 
         if (role === "admin") {

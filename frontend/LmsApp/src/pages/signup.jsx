@@ -35,8 +35,9 @@ export   function Signup(){
         });
         
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", response.data.fullName)
         alert("Signup Sucessfully!")
-        navigate("/home")
+        navigate("/user/home")
         
     } catch (error) {
         alert(error.response?.data?.message || "signup failed")
