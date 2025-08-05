@@ -1,11 +1,14 @@
+import bookModel from "../models/books.models.js";
 import BurrowingModel from "../models/burrowinghistory.models.js";
+
+
 
 // Get all burrowing history
 export const getAllBurrowings = async (req, res) => {
   try {
-    const burrowings = await BurrowingModel.find()
+    const burrowings = await BurrowingModel.find({status: "burrowed"})
       .populate("user", "fullName, email")
-      .populate("book", "title, author")
+      .populate("book", "title, author, category")
       .lean();
     res.status(200).json(burrowings);
   } catch (err) {
@@ -24,17 +27,34 @@ export const createBurrowing = async (req, res) => {
   }
 };
 
-// Mark return
-export const markReturn = async (req, res) => {
+// Mark return or return a burrowed books:
+export const returnBook = async (req, res) => {
   try {
-    const burrow = await BurrowingModel.findById(req.params.id);
-    if (!burrow) return res.status(404).json({ message: "Burrowing record not found" });
+    const burrowId = req.params.id;
 
-    burrow.returnDate = new Date();
-    burrow.status = "returned";
-    await burrow.save();
+    //find the burrow record
+    const burrowRecord = await BurrowingModel.findById(burrowId).populate("book", "title", "author", "availableCopies");
 
-    res.status(200).json({ message: "Book returned successfully", burrow });
+    if (!burrowRecord) return res.status(404).json({ message: "Burrowing record not found" });
+
+    if(burrowRecord.status === 'returned') return res.status(400).json({message: "Book already returned"});
+
+    burrowRecord.returnDate = new Date();
+    burrowRecord.status = "returned";
+    await burrowRecord.save();
+
+    // Increment book's availableCopies
+    await bookModel.findByIdAndUpdate(burrowRecord.book._id, {
+      $inc: { availableCopies: 1 }
+    });
+
+    const updatedBook = await bookModel.findById(
+      burrowRecord.book._id,
+      "title","availableCopies"
+    );
+
+
+    res.status(200).json({ message: "Book returned successfully", burrowRecord });
   } catch (err) {
     res.status(400).json({ error: "Failed to return book", message: err.message });
   }
@@ -45,6 +65,7 @@ export const getBurrowingsByUser = async (req, res) => {
   try {
     const burrowings = await BurrowingModel.find({ user: req.params.userId })
       .populate("book", "title, author")
+      .sort({burrowDate: -1})
       .lean();
     res.status(200).json(burrowings);
   } catch (err) {

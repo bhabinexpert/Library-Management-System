@@ -11,7 +11,7 @@ const burrowingSchema = new Schema(
       ref: "Book",
       required: true,
     },
-    borrowDate: {
+    burrowDate: {
       type: Date,
       required: true,
       default: Date.now,

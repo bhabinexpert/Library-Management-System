@@ -195,7 +195,7 @@ export const deleteUser = async (req, res) => {
 };
 
 // total number of burrowers;
-export const getBorrowerCount = async (req, res)=>{
+export const getBurrowerCount = async (req, res)=>{
   try {
     const count = await userModel.countDocuments({role: "burrower"});
 
