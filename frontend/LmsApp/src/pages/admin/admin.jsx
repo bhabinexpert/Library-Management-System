@@ -72,7 +72,7 @@ function AdminDashboard() {
 
   const [users, setUsers] = useState([]);
   const [books, setBooks] = useState([]);
-  const [borrowRecords, setBorrowRecords] = useState([]);
+  const [burrowRecords, setBurrowRecords] = useState([]);
   const [statistics, setStatistics] = useState({});
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
@@ -107,19 +107,36 @@ function AdminDashboard() {
     loadData();
   }, [activeTab]);
 
+  // const loadData = async () => {
+  //   try {
+  //     const usersData = await getAllUsers();
+  //     const booksData = await getAllBooks();
+  //     const borrowData = await getAllBorrowRecords();
+  //     const stats = await getStatistics();
+
+  //     setUsers(usersData);
+  //     setBooks(booksData);
+  //     setBorrowRecords(borrowData);
+  //     setStatistics(stats);
+  //   } catch (err) {
+  //     console.error("Error loading data:", err);
+  //   }
+  // };
+
+  // loads books and burrow records
   const loadData = async () => {
     try {
-      const usersData = await getAllUsers();
-      const booksData = await getAllBooks();
-      const borrowData = await getAllBorrowRecords();
-      const stats = await getStatistics();
+      //fetch all books
+      const booksResponse = await axios.get("http://localhost:9000/books");
+      setBooks(booksResponse.data);
+      const burrowed = booksResponse.data.filter(
+          (record) => record.status === "burrowed"
+        );
 
-      setUsers(usersData);
-      setBooks(booksData);
-      setBorrowRecords(borrowData);
-      setStatistics(stats);
-    } catch (err) {
-      console.error("Error loading data:", err);
+        setBurrowRecords(burrowed)
+      
+    } catch (error) {
+      console.error("Error loading data:", error);
     }
   };
 
@@ -223,7 +240,7 @@ function AdminDashboard() {
       alert("Error updating book.");
     }
   };
-
+  
   const handleDeleteBook = async (book) => {
     if (
       window.confirm(
@@ -578,7 +595,7 @@ function AdminDashboard() {
         {activeTab === "borrowing" && (
           <div>
             <h2 className="section-title">
-              Borrowing History ({borrowRecords.length} records)
+              Borrowing History ({burrowRecords.length} records)
             </h2>
 
             <div className="table-container">
@@ -587,13 +604,13 @@ function AdminDashboard() {
                   <tr>
                     <th>User</th>
                     <th>Book</th>
-                    <th>Borrow Date</th>
+                    <th>Burrow Date</th>
                     <th>Due Date</th>
                     <th className="text-center">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {borrowRecords.map((record) => {
+                  {burrowRecords.map((record) => {
                     const user = getUserDetails(record.user);
                     const book = getBookDetails(record.book);
                     const isOverdue =
@@ -1147,3 +1164,6 @@ function AdminDashboard() {
 }
 
 export default AdminDashboard;
+
+
+// backend route and controller are yet to be defined for event handling :
