@@ -26,7 +26,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/user/home" element={<UserDashboard />} />
+        <Route path="/user/home/" element={<UserDashboard />} />
       </Routes>
     </>
   );
