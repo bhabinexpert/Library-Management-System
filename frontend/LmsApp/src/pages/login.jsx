@@ -61,7 +61,8 @@ export function Login() {
           if (user.role === "admin") {
             navigate('/admin/dashboard');
           } else {
-            navigate('/user/home');
+            console.log("User Dashboard")
+            navigate('/user/home/');
           }
         }, 1000);
       }
@@ -104,7 +105,7 @@ export function Login() {
           navigate('/admin/dashboard');
           
         } else {
-          navigate('user/home');
+          navigate('user/home/');
         }
       }
     } catch (error) {
