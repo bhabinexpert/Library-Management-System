@@ -46,7 +46,9 @@ app.get("/user", getAllBooks)
 
 app.get('/admin/dashboard',protect,  getAllBurrowings, getBookById, returnBook,getBurrowingsByUser, getOverdueBooksCount)
 
-app.get('/user/home', protect,countBooks, getAllBooks, getBurrowerCount, getBorrowedBooksCount, getOverdueBooksCount, getAllBurrowings, returnBook,getBurrowingsByUser)
+app.get('/user/home/',countBooks, getAllBooks, getBurrowerCount, getBorrowedBooksCount, getOverdueBooksCount, getAllBurrowings, returnBook,getBurrowingsByUser)
+
+
 
 app.get('/count', countBooks);
 
