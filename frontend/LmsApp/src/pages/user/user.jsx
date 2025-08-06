@@ -3,6 +3,7 @@ import "./user.css";
 import { useState, useEffect } from "react";
 import axios from "axios";
 function UserDashboard() {
+
   const [activeTab, setActiveTab] = useState("explore");
   // const [borrowedBooks, setBorrowedBooks] = useState<BorrowingHistory[]>([]);
   // const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
@@ -33,40 +34,40 @@ function UserDashboard() {
   //   filterBooks();
   // }, [books, searchTerm, selectedCategory]);
 
-  const initializeProfileForm = () => {
-    if (currentUser) {
-      setProfileForm({
-        fullName: currentUser.fullName,
-        email: currentUser.email,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    }
-  };
+  // const initializeProfileForm = () => {
+  //   if (currentUser) {
+  //     setProfileForm({
+  //       fullName: currentUser.fullName,
+  //       email: currentUser.email,
+  //       currentPassword: "",
+  //       newPassword: "",
+  //       confirmPassword: "",
+  //     });
+  //   }
+  // };
 
-  const filterBooks = () => {
-    let filtered = allBooks;
+  // const filterBooks = () => {
+  //   let filtered = allBooks;
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (book) =>
-          book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (book.tags || []).some((tag) =>
-            tag.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-      );
-    }
+  //   // Filter by search term
+  //   if (searchTerm) {
+  //     filtered = filtered.filter(
+  //       (book) =>
+  //         book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //         book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //         (book.tags || []).some((tag) =>
+  //           tag.toLowerCase().includes(searchTerm.toLowerCase())
+  //         )
+  //     );
+  //   }
 
-    // Filter by category
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((book) => book.category === selectedCategory);
-    }
+  //   // Filter by category
+  //   if (selectedCategory !== "all") {
+  //     filtered = filtered.filter((book) => book.category === selectedCategory);
+  //   }
 
-    setFilteredBooks(filtered);
-  };
+  //   setFilteredBooks(filtered);
+  // };
 
   const getCategories = () => {
     const categories = [...new Set(books.map((book) => book.category))];
@@ -182,7 +183,7 @@ function UserDashboard() {
   //   setIsUpdatingProfile(false);
   // };
 
-  const user = JSON.parse(localStorage.getItem("user"));
+ 
 
   const [count, setCount] = useState(0);
 
@@ -330,6 +331,7 @@ function UserDashboard() {
         );
       }
     }
+  }
 
     const [selectedBook, setSelectedBook] = useState(null);
     const [burrowingBook, setBurrowingBook] = useState(null);
@@ -351,27 +353,27 @@ function UserDashboard() {
 
     //burrow the book from backend after confirmation:
 
-    const handleBurrowBook = async () => {
-      if (!burrowingBook) return;
-      try {
-        const user = JSON.parse(localStorage.getItem("user"));
-        const res = await axios.post("http://localhost/9000/burrow", {
-          user: user._id,
-          book: burrowingBook._id,
-        });
-        alert(
-          `Successfully burrowed "${burrowingBook.title}"! Due: ${new Date(
-            res.data.dueDate
-          ).toLocaleDateString()}`
-        );
-        setShowBorrowConfirm(false);
-        setBorrowingBook(null);
-        loadData();
-      } catch (error) {
-        console.error("Error burrowing book", error);
-        alert("Unable to Burrow this book..");
-      }
-    };
+    // const handleBurrowBook = async () => {
+    //   if (!burrowingBook) return;
+    //   try {
+    //     const user = JSON.parse(localStorage.getItem("user"));
+    //     const res = await axios.post("http://localhost/9000/burrow", {
+    //       user: user._id,
+    //       book: burrowingBook._id,
+    //     });
+    //     alert(
+    //       `Successfully burrowed "${burrowingBook.title}"! Due: ${new Date(
+    //         res.data.dueDate
+    //       ).toLocaleDateString()}`
+    //     );
+    //     setShowBorrowConfirm(false);
+    //     setBorrowingBook(null);
+    //     loadData();
+    //   } catch (error) {
+    //     console.error("Error burrowing book", error);
+    //     alert("Unable to Burrow this book..");
+    //   }
+    // };
 
     const handlePrepareBurrow = (book) => {
       if (book.availableCopies > 0 && !isAlreadyBorrowed(book._id)) {
@@ -387,8 +389,8 @@ function UserDashboard() {
           <div>
             <h1 className="dashboard-title">📚 GyanKosh!</h1>
             <p className="dashboard-welcome">
-              Welcome back,
-              {currentUser.name.split(" ")[0] || "User"}!
+              Welcome back, User!
+              
             </p>
           </div>
 
@@ -1055,5 +1057,5 @@ function UserDashboard() {
       </div>
     );
   };
-}
+
 export default UserDashboard;
