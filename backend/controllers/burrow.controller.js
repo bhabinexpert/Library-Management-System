@@ -19,10 +19,81 @@ export const getAllBurrowings = async (req, res) => {
 // Borrow a book
 export const createBurrowing = async (req, res) => {
   try {
-    const newBurrow = new BurrowingModel(req.body);
+    const { user, book } = req.body;
+
+    console.log('Received burrow request:', req.body);
+
+    // Validate required fields
+    if (!user || !book) {
+      return res.status(400).json({ 
+        message: "Missing required fields",
+        details: {
+          user: !user ? "User ID is required" : null,
+          book: !book ? "Book ID is required" : null
+        }
+      });
+    }
+
+    // Check if book exists and is available
+    const bookDoc = await bookModel.findById(book);
+    if (!bookDoc) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    console.log('Book found:', bookDoc);
+
+    if (bookDoc.availableCopies <= 0) {
+      return res.status(400).json({ message: "Book is not available for borrowing" });
+    }
+
+    // Check if user already has this book borrowed
+    const existingBorrow = await BurrowingModel.findOne({
+      user,
+      book,
+      status: "burrowed"
+    });
+
+    if (existingBorrow) {
+      return res.status(400).json({ message: "You have already borrowed this book" });
+    }
+
+    // Create new borrow record
+    const burrowDate = new Date();
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 15);
+
+    const newBurrow = new BurrowingModel({
+      user,
+      book,
+      burrowDate: burrowDate || new Date(),
+      dueDate: dueDate || (() => {
+        const date = new Date();
+        date.setDate(date.getDate() + 15);
+        return date;
+      })(),
+      status: "burrowed"
+    });
+
+    // Save the borrow record
     await newBurrow.save();
-    res.status(201).json({ message: "Book borrowed successfully", newBurrow });
+
+    // Update book's available copies
+    await bookModel.findByIdAndUpdate(book, {
+      $inc: { availableCopies: -1 }
+    });
+
+    // Return success response with populated borrow record
+    const populatedBorrow = await BurrowingModel.findById(newBurrow._id)
+      .populate("user", "fullName email")
+      .populate("book", "title author category");
+
+    res.status(201).json({ 
+      message: "Book borrowed successfully", 
+      burrowRecord: populatedBorrow 
+    });
+
   } catch (err) {
+    console.error("Error in createBurrowing:", err);
     res.status(400).json({ error: "Failed to borrow book", message: err.message });
   }
 };
