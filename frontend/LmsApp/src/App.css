@@ -1,5 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Crimson+Text:wght@600;700&display=swap');
+
 * {
   scroll-behavior: smooth;
+  font-family: 'Poppins', sans-serif;
+}
+
+h1, h2, h3, .dashboard-title {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.book-title {
+  font-family: 'Crimson Text', serif;
+  font-weight: 700;
+  color: #1a365d;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+}
+
+.dashboard-welcome {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 1.2rem;
+  color: #34495e;
+}
+
+/* Enhanced History Table Styles */
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  margin-top: 20px;
+}
+
+.history-table th {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: #2c3e50;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.history-book-info {
+  padding: 12px;
+}
+
+.history-book-title {
+  font-family: 'Crimson Text', serif;
+  font-weight: 700;
+  color: #1a365d;
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+}
+
+.history-book-author {
+  font-family: 'Poppins', sans-serif;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.history-date {
+  font-family: 'Poppins', sans-serif;
+  color: #475569;
+}
+
+.returned-badge {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Enhanced Book Card Styles */
+.book-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .navigation {
@@ -28,12 +113,15 @@
 }
 
 .logo .name {
-  font-weight: bold;
-  font-size: 1.8rem;
-  background: linear-gradient(90deg, #c98b8b, #d6a77a, #f89249);
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  background: linear-gradient(90deg, #2c5282, #4299e1, #2b6cb0);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -168,6 +256,29 @@
   flex-direction: column;
   justify-content: center;
   background: linear-gradient(135deg, #c2ccd4 0%, #fddcbd 70%, #cfd4e4 100%);
+}
+
+.explore h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a365d;
+  text-align: center;
+  margin-bottom: 2rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.02em;
+}
+
+.explore .book-count {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #2c5282, #4299e1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  margin: 1rem 0;
 }
 
 /* //about -us  */
@@ -312,23 +423,30 @@
 }
 
 .stat-number {
-  font-size: 32px;
-  font-weight: bold;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 40px;
+  font-weight: 700;
   color: #2563eb;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  text-shadow: 2px 2px 4px rgba(37, 99, 235, 0.1);
 }
 
 .stat-title {
-  color: #0f172a;
-  font-weight: 600;
-  font-size: 18px;
-  margin-bottom: 8px;
+  font-family: 'Crimson Text', serif;
+  color: #1a365d;
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
 }
 
 .stat-desc {
-  color: #021228;
+  font-family: 'Poppins', sans-serif;
+  color: #2d3748;
   font-size: 16px;
-  font-weight: 400px;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
 /* 
