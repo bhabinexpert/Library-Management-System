@@ -42,29 +42,29 @@ app.post("/signup",  registerUser)
 
 app.post("/login", loginUser)
 
-app.get("/user", getAllBooks)
+// Books routes
+app.get("/api/books", getAllBooks);
+app.get("/api/books/count", countBooks);
 
-app.get('/admin/dashboard',protect,  getAllBurrowings, getBookById, returnBook,getBurrowingsByUser, getOverdueBooksCount)
+// Burrowing routes
+app.get("/api/books/burrowstatus/:id", protect, getBurrowingsByUser);
+app.post("/api/books/burrow", protect, createBurrowing);
+app.get("/api/burrowings", protect, getAllBurrowings);
+app.get("/api/burrowings/count", getBorrowedBooksCount);
+app.get("/api/burrowings/overdue", protect, getOverdueBooksCount);
 
-app.get('/user/home/',countBooks, getAllBooks, getBurrowerCount, getBorrowedBooksCount, getOverdueBooksCount, getAllBurrowings, returnBook,getBurrowingsByUser)
+// Book management routes (these should come after more specific routes)
+app.post("/api/books", protect, createBook);
+app.get("/api/books/:id", getBookById);
+app.put("/api/books/:id", protect, updateBook);
+app.delete("/api/books/:id", protect, deleteBook);
+app.post("/api/books/:id/return", protect, returnBook);
 
-
-
-app.get('/count', countBooks);
-
-app.get('/burrowercount', getBurrowerCount)
-
-app.get('/burrowedbookcount', getBorrowedBooksCount)
-
-app.get('/overdue-books-count', getOverdueBooksCount)
-
-app.get('/books', getAllBooks);
-
-app.use('/burrowstatus', getAllBurrowings);
-
-app.put("/return/:id",protect, returnBook)
-
-app.put("/burrowstatus/:userId", protect, getBurrowingsByUser)
+// Stats routes
+app.get("/api/stats/books/count", countBooks);
+app.get("/api/stats/burrowers/count", getBurrowerCount);
+app.get("/api/stats/burrowed/count", getBorrowedBooksCount);
+app.get("/api/stats/overdue/count", getOverdueBooksCount);
 
 
 
