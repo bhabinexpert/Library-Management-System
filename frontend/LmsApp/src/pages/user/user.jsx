@@ -30,9 +30,15 @@ function UserDashboard() {
   // Initialize current user from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
+    const token = localStorage.getItem("token");
+    
+    if (!storedUser || !token) {
+      window.location.href = '/login';
+      return;
     }
+    
+    setCurrentUser(JSON.parse(storedUser));
+    loadData(); // Load books data when user is initialized
   }, []);
 
   // Profile management states
@@ -59,52 +65,12 @@ function UserDashboard() {
     }
   };
 
-  // const filterBooks = () => {
-  //   let filtered = allBooks;
-
-  //   // Filter by search term
-  //   if (searchTerm) {
-  //     filtered = filtered.filter(
-  //       (book) =>
-  //         book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         (book.tags || []).some((tag) =>
-  //           tag.toLowerCase().includes(searchTerm.toLowerCase())
-  //         )
-  //     );
-  //   }
-
-  //   // Filter by category
-  //   if (selectedCategory !== "all") {
-  //     filtered = filtered.filter((book) => book.category === selectedCategory);
-  //   }
-
-  //   setFilteredBooks(filtered);
-  // };
 
   const getCategories = () => {
     const categories = [...new Set(books.map((book) => book.category))];
     return categories.sort();
   };
 
-  // const handleBorrowBook = async () => {
-  //   if (!borrowingBook || !currentUser) return;
-
-  //   if (borrowRecord) {
-  //     loadData(); // Refresh data
-  //     setShowBorrowConfirm(false);
-  //     setBurrowingBook(null);
-  //     alert(
-  //       `Successfully borrowed "${borrowingBook.title}"! Due date: ${new Date(
-  //         borrowRecord.dueDate
-  //       ).toLocaleDateString()}`
-  //     );
-  //   } else {
-  //     alert(
-  //       "Unable to borrow this book. It might be unavailable or you may have already borrowed it."
-  //     );
-  //   }
-  // };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -402,11 +368,11 @@ function UserDashboard() {
             }
           });
 
-        const burrowed = burrowedResponse.data.filter(
-          (record) => record.status === "burrowed"
+        const borrowed = burrowedResponse.data.filter(
+          (record) => record.status === "burrowed" || record.status === "borrowed"
         );
 
-        setBurrowedBooks(burrowed);
+        setBurrowedBooks(borrowed);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -491,10 +457,11 @@ function UserDashboard() {
       setShowBookModal(true); //Open model
     };
 
-    //check ifuser already burrowed the book
+    //check if user already borrowed the book
     const isAlreadyBorrowed = (bookId) => {
       return burrowedBooks.some(
-        (record) => record.book?._id === bookId || record.book === bookId
+        (record) => (record.book?._id === bookId || record.book === bookId) && 
+                    (record.status === "borrowed" || record.status === "burrowed")
       );
     };
 
@@ -502,31 +469,70 @@ function UserDashboard() {
     const handleBurrowBook = async () => {
       if (!burrowingBook || !currentUser) {
         alert("Please login to borrow books");
+        window.location.href = '/login';
         return;
       }
+      
+      // Recheck availability before proceeding
       if (burrowingBook.availableCopies <= 0) {
         alert("This book is currently unavailable");
         return;
       }
 
+      // Check if already borrowed
+      // Double check with server if already borrowed
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login to borrow books");
+        window.location.href = '/login';
+        return;
+      }
+
       try {
-        const token = localStorage.getItem("token");
+        // Check current borrow status from server
+        const statusResponse = await axios.get(
+          `http://localhost:9000/api/books/burrowstatus/${currentUser._id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        const alreadyBorrowed = statusResponse.data.some(
+          record => record.book._id === burrowingBook._id && 
+                    (record.status === "borrowed" || record.status === "burrowed")
+        );
+        
+        if (alreadyBorrowed) {
+          alert("You have already borrowed this book");
+          setShowBorrowConfirm(false);
+          setBurrowingBook(null);
+          await loadData(); // Refresh data to update UI
+          return;
+        }
         if (!token) {
           alert("Please login to borrow books");
           window.location.href = '/login';
           return;
         }
 
-        console.log('Attempting to burrow book:', burrowingBook.title);
+        console.log('Attempting to borrow book:', burrowingBook.title);
 
         // Send both user ID and book ID in the request payload
         const res = await axios.post(
           "http://localhost:9000/api/books/burrow",
           {
-            userId: currentUser._id,     // Using 'userId' as the field name
-            bookId: burrowingBook._id,   // Using 'bookId' as the field name
-            borrowDate: new Date().toISOString(), // Adding borrow date
-            status: "burrowed"          // Adding status field
+            userId: currentUser._id,      // Changed to userId
+            bookId: burrowingBook._id,    // Changed to bookId
+            dueDate: (() => {
+              const date = new Date();
+              date.setDate(date.getDate() + 15); // 15 days from now
+              return date.toISOString();
+            })(),
+            borrowDate: new Date().toISOString(),
+            status: "burrowed"            // Changed back to "burrowed" to match backend
           },
           {
             headers: {
@@ -584,10 +590,24 @@ function UserDashboard() {
     };
 
     const handlePrepareBurrow = (book) => {
-      if (book.availableCopies > 0 && !isAlreadyBorrowed(book._id)) {
-        setBurrowingBook(book); //store book for burrow;
-        setShowBorrowConfirm(true);
+      if (!currentUser) {
+        alert("Please login to borrow books");
+        window.location.href = '/login';
+        return;
       }
+      
+      if (isAlreadyBorrowed(book._id)) {
+        alert("You have already borrowed this book");
+        return;
+      }
+      
+      if (book.availableCopies <= 0) {
+        alert("Sorry, this book is currently unavailable");
+        return;
+      }
+      
+      setBurrowingBook(book); // store book for borrow
+      setShowBorrowConfirm(true);
     };
 
     return (
@@ -683,8 +703,9 @@ function UserDashboard() {
               {/* Books Grid */}
               <div className="books-grid">
                 {filteredBooks.map((book) => {
-                  const isAlreadyBorrowed = burrowed.some(
-                    (record) => record.book._id === book._id
+                  const isBookBorrowed = burrowedBooks.some(
+                    (record) => (record.book?._id === book._id || record.book === book._id) && 
+                              (record.status === "borrowed" || record.status === "burrowed")
                   );
 
                   return (
@@ -789,12 +810,12 @@ function UserDashboard() {
           {activeTab === "borrowed" && (
             <div className="borrowed-tab">
               <h2 className="section-title">
-                My Borrowed Books ({burrowed.length})
+                My Borrowed Books ({burrowedBooks.length})
               </h2>
 
-              {burrowed.length > 0 ? (
+              {burrowedBooks.length > 0 ? (
                 <div className="borrowed-grid">
-                  {burrowed.map((burrowRecord) => {
+                  {burrowedBooks.map((burrowRecord) => {
                     const book = burrowRecord.book;
                     const timeRemaining = getTimeRemaining(
                       burrowRecord.dueDate
