@@ -19,6 +19,7 @@ function UserDashboard() {
   
   // Borrowing states
   const [burrowed, setBurrowed] = useState([]);
+  const [isBurrowedLoading, setIsBurrowedLoading] = useState(false);
   const [burrowedBooks, setBurrowedBooks] = useState([]);
   
   // Modal states
@@ -277,10 +278,13 @@ function UserDashboard() {
     setFilteredBooks(filtered);
   }, [books, searchTerm, selectedCategory]);
 
+
+
   const getBurrowingStatus = async () => {
     if (!currentUser?._id) return;
     
     try {
+      setIsBurrowedLoading(true);
       const token = localStorage.getItem("token");
       if (!token) {
         console.error("No authentication token found");
@@ -296,7 +300,7 @@ function UserDashboard() {
         `http://localhost:9000/api/books/burrowstatus/${currentUser._id}`,
         config
       );
-      setBurrowed(response.data);
+      setBurrowed(response.data || []);
     } catch (err) {
       console.error("Error fetching borrowed books:", err);
       if (err.response?.status === 401) {
@@ -305,12 +309,16 @@ function UserDashboard() {
         localStorage.removeItem('user');
         window.location.href = '/login';
       }
+    }finally{
+      setIsBurrowedLoading(false);
     }
   };
 
   useEffect(() => {
     getBurrowingStatus();
   }, [currentUser]);
+
+
 
   const getTimeRemaining = (dueDate) => {
     const now = new Date();
@@ -361,6 +369,7 @@ function UserDashboard() {
       if (currentUser?._id && token) {
         const burrowedResponse = await axios.get(
           `http://localhost:9000/api/books/burrowstatus/${currentUser._id}`,
+          
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -386,68 +395,72 @@ function UserDashboard() {
   }, [currentUser]);
 
   const handleReturnBook = async (burrowRecord) => {
-    if (
-      window.confirm(
-        `Are you sure you want to return '${burrowRecord.book.title}'?`
-      )
-    ) {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          alert("Please login again to return books");
-          window.location.href = '/login';
-          return;
-        }
 
-        const response = await axios.put(
-          `http://localhost:9000/api/books/return/${burrowRecord._id}`,
-          {
-            returnDate: new Date().toISOString(),
-            status: "returned",
-            bookId: burrowRecord.book._id,
-            availableCopies: burrowRecord.book.availableCopies + 1 // Increase available copies
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-          }
-        );
+     const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login again to return books");
+        window.location.href = '/login';
+        return;
+      }
+
+
+  if (
+    !window.confirm(
+      `Are you sure you want to return '${burrowRecord.book.title}'?`
+    )
+  ) {
+    return;
+  }
+    try {
+     
+
+      const response = await axios.put(
+        `http://localhost:9000/api/books/return/${burrowRecord._id}`,
+        {},
         
-        if (response.status === 200) {
-          alert(`Successfully returned "${burrowRecord.book.title}"!`);
-          
-          // Update all relevant states
-          await Promise.all([
-            loadData(),         // Refresh book lists
-            getBurrowingStatus() // Refresh borrowed/returned books
-          ]);
-          
-          // Update filtered books to reflect the returned copy
-          setFilteredBooks(prevBooks => 
-            prevBooks.map(book => 
-              book._id === burrowRecord.book._id
-                ? { ...book, availableCopies: book.availableCopies + 1 }
-                : book
-            )
-          );
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
         }
-      } catch (error) {
-        console.error("Error returning book:", error);
-        if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
-        } else {
-          alert(
-            error.response?.data?.message || 
-            "Error returning book. Please try again or contact the developer!"
-          );
-        }
+      );
+
+      if (response.status === 200) {
+        alert(`Successfully returned "${burrowRecord.book.title}"!`);
+
+        // Refresh UI data
+        await Promise.all([
+          loadData(),         // Refresh book lists
+          getBurrowingStatus() // Refresh borrowed/returned records
+        ]);
+
+        // Update availableCopies optimistically in filteredBooks state
+        setFilteredBooks(prevBooks => 
+          prevBooks.map(book => 
+            book._id === burrowRecord.book._id
+              ? { ...book, availableCopies: book.availableCopies + 1 }
+              : book
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error returning book:", error);
+      console.log(error.response?.data?.message || 
+          "Error returning book. Please try again!!")
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      } else {
+        alert(
+          error.response?.data?.message || 
+          "Error returning book. Please try again!!"
+        );
       }
     }
-  }
+  
+};
 
     // States are already declared at the top
 
@@ -461,133 +474,116 @@ function UserDashboard() {
     const isAlreadyBorrowed = (bookId) => {
       return burrowedBooks.some(
         (record) => (record.book?._id === bookId || record.book === bookId) && 
-                    (record.status === "borrowed" || record.status === "burrowed")
+        record.status === "burrowed"
       );
     };
 
     //burrow the book from backend after confirmation:
-    const handleBurrowBook = async () => {
-      if (!burrowingBook || !currentUser) {
-        alert("Please login to borrow books");
-        window.location.href = '/login';
-        return;
-      }
+  const handleBurrowBook = async (bookId, userId) => {
+  if (!burrowingBook || !currentUser) {
+    alert("Please login to borrow books");
+    window.location.href = '/login';
+    return;
+  }
+
+  if (burrowingBook.availableCopies <= 0) {
+    alert("This book is currently unavailable");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please login to borrow books");
+    window.location.href = '/login';
+    return;
+  }
+  
+ 
+
+
+  try {
+    // Check borrow status
+
+    
+    const statusResponse = await axios.get(
+      `http://localhost:9000/api/books/burrow/${book._id}`,
+      {user: userId,
+        book: bookId,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const alreadyBorrowed = statusResponse.data.some(
+      record => record.book._id === burrowingBook._id &&
+                (record.status === "borrowed" || record.status === "burrowed")
+    );
+
+    if (alreadyBorrowed) {
+      alert("You have already borrowed this book");
+      setShowBorrowConfirm(false);
+      setBurrowingBook(null);
+      await loadData();
+      return;
+    }
+
+    console.log('Attempting to borrow book:', burrowingBook.title);
+
+    const res = await axios.post(
+      "http://localhost:9000/api/books/burrow",
+      {
+        userId: currentUser._id,
+        bookId: burrowingBook._id,
+        dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+        borrowDate: new Date().toISOString(),
+        status: "burrowed"
+      },
+      { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+    );
+
+    if (res.data) {
+      alert(`Successfully borrowed "${burrowingBook.title}"! Due: ${new Date(res.data.dueDate).toLocaleDateString()}`);
       
-      // Recheck availability before proceeding
-      if (burrowingBook.availableCopies <= 0) {
-        alert("This book is currently unavailable");
-        return;
-      }
+      //closes modals;
+      setShowBorrowConfirm(false);
+      setBurrowingBook(null);
+      setShowBookModal(false);
+      
 
-      // Check if already borrowed
-      // Double check with server if already borrowed
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Please login to borrow books");
-        window.location.href = '/login';
-        return;
-      }
+      //Refresh Ui Instantly:
+      await Promise.all([loadData(), getBurrowingStatus()]);
+      
+      setFilteredBooks(prevBooks =>
+        prevBooks.map(book =>
+          book._id === burrowingBook._id
+            ? { ...book, availableCopies: book.availableCopies - 1 }
+            : book
+        )
+      );
+    }
+  } catch (error) {
+    console.error("Error borrowing book:", error);
+    const status = error.response?.status;
+    const message = error.response?.data?.message || "Unable to borrow this book. Please try again.";
+    
+    if (status === 400 && message.includes("already borrowed")) {
+      alert("You have already borrowed this book.");
+    } else if (status === 404) {
+      alert("The borrow service is not available. Please try again later.");
+    } else if (status === 401) {
+      alert("Please login again to borrow books.");
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    } else {
+      alert(message);
+    }
 
-      try {
-        // Check current borrow status from server
-        const statusResponse = await axios.get(
-          `http://localhost:9000/api/books/burrowstatus/${currentUser._id}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
-        const alreadyBorrowed = statusResponse.data.some(
-          record => record.book._id === burrowingBook._id && 
-                    (record.status === "borrowed" || record.status === "burrowed")
-        );
-        
-        if (alreadyBorrowed) {
-          alert("You have already borrowed this book");
-          setShowBorrowConfirm(false);
-          setBurrowingBook(null);
-          await loadData(); // Refresh data to update UI
-          return;
-        }
-        if (!token) {
-          alert("Please login to borrow books");
-          window.location.href = '/login';
-          return;
-        }
+    setShowBorrowConfirm(false);
+    setBurrowingBook(null);
+    await loadData();
+  }
+};
 
-        console.log('Attempting to borrow book:', burrowingBook.title);
-
-        // Send both user ID and book ID in the request payload
-        const res = await axios.post(
-          "http://localhost:9000/api/books/burrow",
-          {
-            userId: currentUser._id,      // Changed to userId
-            bookId: burrowingBook._id,    // Changed to bookId
-            dueDate: (() => {
-              const date = new Date();
-              date.setDate(date.getDate() + 15); // 15 days from now
-              return date.toISOString();
-            })(),
-            borrowDate: new Date().toISOString(),
-            status: "burrowed"            // Changed back to "burrowed" to match backend
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
-        if (res.data) {
-          alert(
-            `Successfully borrowed "${burrowingBook.title}"! Due: ${new Date(
-              res.data.dueDate
-            ).toLocaleDateString()}`
-          );
-          
-          // Update UI states
-          setShowBorrowConfirm(false);
-          setBurrowingBook(null);
-          setShowBookModal(false);
-          
-          // Refresh all data
-          await Promise.all([
-            loadData(),  // Refresh book lists
-            getBurrowingStatus()  // Refresh borrowed books
-          ]);
-          
-          // Force a re-render of filtered books
-          setFilteredBooks(prevBooks => 
-            prevBooks.map(book => 
-              book._id === burrowingBook._id 
-                ? { ...book, availableCopies: book.availableCopies - 1 }
-                : book
-            )
-          );
-        }
-      } catch (error) {
-        console.error("Error borrowing book:", error);
-        if (error.response?.status === 400 && error.response?.data?.message?.includes("already borrowed")) {
-          alert("You have already borrowed this book.");
-          setShowBorrowConfirm(false);
-          setBurrowingBook(null);
-          await loadData(); // Refresh the data to show current state
-        } else if (error.response?.status === 404) {
-          alert("The burrow service is not available. Please try again later.");
-        } else if (error.response?.status === 401) {
-          alert("Please login again to burrow books.");
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
-        } else {
-          alert(error.response?.data?.message || "Unable to borrow this book. Please try again.");
-        }
-      }
-    };
 
     const handlePrepareBurrow = (book) => {
       if (!currentUser) {
@@ -617,8 +613,7 @@ function UserDashboard() {
           <div>
             <h1 className="dashboard-title">📚 GyanKosh!</h1>
             <p className="dashboard-welcome">
-              Welcome back, {currentUser?.fullName || 'User'}!
-              
+              Welcome back, {currentUser?.name || 'User'}!             
             </p>
           </div>
 
@@ -703,7 +698,7 @@ function UserDashboard() {
               {/* Books Grid */}
               <div className="books-grid">
                 {filteredBooks.map((book) => {
-                  const isBookBorrowed = burrowedBooks.some(
+                  const isBookBurrowed = burrowedBooks.some(
                     (record) => (record.book?._id === book._id || record.book === book._id) && 
                               (record.status === "borrowed" || record.status === "burrowed")
                   );
@@ -742,8 +737,8 @@ function UserDashboard() {
                         </div>
 
                         {/* Already borrowed badge */}
-                        {isAlreadyBorrowed && (
-                          <div className="borrowed-badge">Borrowed</div>
+                        {isBookBurrowed && (
+                          <div className="borrowed-badge">Burrowed</div>
                         )}
                       </div>
 
@@ -768,25 +763,26 @@ function UserDashboard() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation(); //prevents triggering details model
-                            handlePrepareBurrow(book);
+                            handleBurrowBook(book._id, currentUser._id);
                             if (
                               book.availableCopies > 0 &&
-                              !isAlreadyBorrowed
+                              !isBookBurrowed
                             ) {
                               setBurrowingBook(book);
                               setShowBorrowConfirm(true);
                             }
                           }}
                           disabled={
-                            book.availableCopies === 0 || isAlreadyBorrowed
+                            book.availableCopies === 0 || isBookBurrowed
                           }
                           className={`borrow-button ${
                             book.availableCopies === 0 ? "unavailable" : ""
-                          } ${isAlreadyBorrowed ? "borrowed" : ""}`}
+                          }
+                           ${isBookBurrowed ? "burrowed" : ""} ${book.availableCopies > 0 && !isBookBurrowed? "Available":""}`}
                         >
                           {book.availableCopies === 0
                             ? "❌ Unavailable"
-                            : isAlreadyBorrowed
+                            : isBookBurrowed
                             ? "📖 Already Borrowed"
                             : "📥 Borrow Book"}
                         </button>
@@ -806,7 +802,7 @@ function UserDashboard() {
             </div>
           )}
 
-          {/* Borrowed Books Tab */}
+          {/* Burrowed Books Tab */}
           {activeTab === "borrowed" && (
             <div className="borrowed-tab">
               <h2 className="section-title">
@@ -847,7 +843,7 @@ function UserDashboard() {
 
                             <p className="borrowed-author">by {book.author}</p>
 
-                            {/* Borrow details */}
+                            {/* Burrow details */}
                             <div className="borrowed-meta">
                               <div className="borrowed-date">
                                 Burrowed:{" "}
@@ -889,7 +885,7 @@ function UserDashboard() {
               ) : (
                 <div className="empty-state">
                   <div className="empty-icon">📚</div>
-                  <h3>No borrowed books</h3>
+                  <h3>No burrowed books</h3>
                   <p>
                     Start exploring our collection to borrow your first book!
                   </p>
@@ -1124,7 +1120,7 @@ function UserDashboard() {
                 >
                   Cancel
                 </button>
-                <button onClick={handleBurrowBook} className="primary-button">
+                <button onClick={()=> handleBurrowBook(burrowingBook)} className="primary-button">
                   📥 Confirm Borrow
                 </button>
               </div>
