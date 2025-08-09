@@ -20,6 +20,7 @@ export const getAllBurrowings = async (req, res) => {
 export const createBurrowing = async (req, res) => {
   try {
     const { user, book } = req.body;
+    const { bookId} = req.params;
 
     console.log('Received burrow request:', req.body);
 
@@ -104,7 +105,7 @@ export const returnBook = async (req, res) => {
     const burrowId = req.params.id;
 
     //find the burrow record
-    const burrowRecord = await BurrowingModel.findById(burrowId).populate("book", "title", "author", "availableCopies");
+    const burrowRecord = await BurrowingModel.findById(burrowId).populate("book", "title author availableCopies");
 
     if (!burrowRecord) return res.status(404).json({ message: "Burrowing record not found" });
 
@@ -134,8 +135,9 @@ export const returnBook = async (req, res) => {
 // Get burrowings by user ID
 export const getBurrowingsByUser = async (req, res) => {
   try {
-    const burrowings = await BurrowingModel.find({ user: req.params.userId })
-      .populate("book", "title, author")
+    const userId = req.params.id;
+    const burrowings = await BurrowingModel.find({ user: req.params.id })
+      .populate("book", "title author category coverImage")
       .sort({burrowDate: -1})
       .lean();
     res.status(200).json(burrowings);
