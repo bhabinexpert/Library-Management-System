@@ -48,10 +48,14 @@ app.get("/api/books/count", countBooks);
 
 // Burrowing routes
 app.get("/api/books/burrowstatus/:id", protect, getBurrowingsByUser);
-app.post("/api/books/burrow", protect, createBurrowing);
+app.put("/api/books/burrow/:bookId", createBurrowing);
 app.get("/api/burrowings", protect, getAllBurrowings);
 app.get("/api/burrowings/count", getBorrowedBooksCount);
 app.get("/api/burrowings/overdue", protect, getOverdueBooksCount);
+
+//Return route:
+app.put('/api/books/return/:id', protect, returnBook);
+
 
 // Book management routes (these should come after more specific routes)
 app.post("/api/books", protect, createBook);
