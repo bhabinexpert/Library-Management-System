@@ -274,13 +274,19 @@
   color: white;
 }
 
+.borrow-button.available {
+  background-color: #4caf50; /* green */
+  color: white;
+  cursor: pointer;
+}
+
 .borrow-button.unavailable {
   background-color: #e2e8f0;
   color: #94a3b8;
   cursor: not-allowed;
 }
 
-.borrow-button.borrowed {
+.borrow-button.burrowed {
   background-color: #f59e0b;
   color: white;
   cursor: not-allowed;
