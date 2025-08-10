@@ -21,8 +21,8 @@ function UserDashboard() {
   const [burrowingBook, setBurrowingBook] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileForm, setProfileForm] = useState({
-    fullName: "",
-    email: "",
+    fullName: currentUser?.fullName || "",
+    email: currentUser?.email || "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -44,12 +44,21 @@ function UserDashboard() {
     loadData();
   }, []);
 
-  // Initialize profile form with current user data
+
+
+  // Get unique book categories
+  const getCategories = () => {
+    const categories = [...new Set(books.map((book) => book.category))];
+    return categories.sort();
+  };
+
+
+    // Initialize profile form with current user data
   useEffect(() => {
     if (currentUser) {
       setProfileForm({
-        fullName: currentUser.fullName,
-        email: currentUser.email,
+        fullName: currentUser.fullName || '',
+        email: currentUser.email || "",
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
@@ -57,11 +66,6 @@ function UserDashboard() {
     }
   }, [currentUser]);
 
-  // Get unique book categories
-  const getCategories = () => {
-    const categories = [...new Set(books.map((book) => book.category))];
-    return categories.sort();
-  };
 
   // Update user profile
   const handleUpdateProfile = async (e) => {
@@ -71,6 +75,15 @@ function UserDashboard() {
     setProfileError("");
     setIsUpdatingProfile(true);
 
+
+    // Require current password for any update
+    if (!profileForm.currentPassword) {
+      setProfileError("Current password is required to update profile");
+      setIsUpdatingProfile(false);
+      return;
+    }
+
+    
     // Password validation
     if (profileForm.newPassword) {
       if (profileForm.newPassword !== profileForm.confirmPassword) {
@@ -97,7 +110,7 @@ function UserDashboard() {
 
       // Send update request
       const response = await axios.put(
-        `http://localhost:9000/api/users/update-profile/${currentUser._id}`,
+        `http://localhost:9000/api/users/${currentUser._id}`,
         {
           fullName: profileForm.fullName,
           email: profileForm.email,
@@ -507,7 +520,9 @@ function UserDashboard() {
         <div>
           <h1 className="dashboard-title">📚 GyanKosh!</h1>
           <p className="dashboard-welcome">
-            Welcome back, {currentUser?.name || 'User'}!             
+            Welcome back, {currentUser?.fullName.split(' ')[0] || 'User'}!        
+            {/* {console.log(currentUser?.fullName)} */}
+
           </p>
         </div>
 

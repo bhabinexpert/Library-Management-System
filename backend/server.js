@@ -3,7 +3,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
 import express from "express";
-import {getBurrowerCount, loginUser, registerUser } from "./controllers/auth.controller.js";
+import {getBurrowerCount, getCurrentUser, loginUser, registerUser, updateUser } from "./controllers/auth.controller.js";
 import { seedAdmin } from "./authorization/seedAdmin.js";
 
 //Import your backend controllers according to your schema and models
@@ -71,6 +71,9 @@ app.get("/api/stats/burrowed/count", getBorrowedBooksCount);
 app.get("/api/stats/overdue/count", getOverdueBooksCount);
 
 
+//updates user 
+app.get("/api/users/me", protect, getCurrentUser);
+app.put("/api/users/:id", protect, updateUser)
 
 
 // hard coded the books details into db..
