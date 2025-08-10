@@ -20,7 +20,7 @@ export const getAllBurrowings = async (req, res) => {
 export const createBurrowing = async (req, res) => {
   try {
     const { user, book } = req.body;
-    const { bookId} = req.params;
+   
 
     console.log('Received burrow request:', req.body);
 
@@ -67,21 +67,19 @@ export const createBurrowing = async (req, res) => {
       user,
       book,
       burrowDate: burrowDate || new Date(),
-      dueDate: dueDate || (() => {
-        const date = new Date();
-        date.setDate(date.getDate() + 15);
-        return date;
-      })(),
+      dueDate:  new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
       status: "burrowed"
+    });
+
+     // Update book's available copies
+    await bookModel.findByIdAndUpdate(book, {
+      $inc: { availableCopies: -1 }
     });
 
     // Save the borrow record
     await newBurrow.save();
 
-    // Update book's available copies
-    await bookModel.findByIdAndUpdate(book, {
-      $inc: { availableCopies: -1 }
-    });
+   
 
     // Return success response with populated borrow record
     const populatedBorrow = await BurrowingModel.findById(newBurrow._id)
@@ -111,6 +109,7 @@ export const returnBook = async (req, res) => {
 
     if(burrowRecord.status === 'returned') return res.status(400).json({message: "Book already returned"});
 
+    //update the burrow record
     burrowRecord.returnDate = new Date();
     burrowRecord.status = "returned";
     await burrowRecord.save();
@@ -120,12 +119,7 @@ export const returnBook = async (req, res) => {
       $inc: { availableCopies: 1 }
     });
 
-    const updatedBook = await bookModel.findById(
-      burrowRecord.book._id,
-      "title availableCopies"
-    );
-
-
+    
     res.status(200).json({ message: "Book returned successfully", burrowRecord });
   } catch (err) {
     res.status(400).json({ error: "Failed to return book", message: err.message });

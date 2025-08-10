@@ -328,6 +328,16 @@ function UserDashboard() {
     if (!window.confirm(`Return '${burrowRecord.book.title}'?`)) return;
 
     try {
+
+       // Optimistically update UI by incrementing by 1
+    setFilteredBooks(prevBooks => 
+      prevBooks.map(book => 
+        book._id === burrowRecord.book._id
+          ? { ...book, availableCopies: book.availableCopies + 1 }
+          : book
+      )
+    );
+
       await axios.put(
         `http://localhost:9000/api/books/return/${burrowRecord._id}`,
         {},
@@ -339,20 +349,15 @@ function UserDashboard() {
       // Refresh data
       await Promise.all([loadData(), getBurrowingStatus()]);
       
-      // Optimistic UI update
-      setFilteredBooks(prevBooks => 
-        prevBooks.map(book => 
-          book._id === burrowRecord.book._id
-            ? { ...book, availableCopies: book.availableCopies + 1 }
-            : book
-        )
-      );
+     
     } catch (error) {
       console.error("Error returning book:", error);
       alert(
         error.response?.data?.message || 
         "Error returning book. Please try again!!"
       );
+
+      await loadData();
       if (error.response?.status === 401) handleLogout();
     }
   };
@@ -401,19 +406,25 @@ function UserDashboard() {
       return;
     }
 
+    //Disable button to prevent multiple clicks
+    setShowBorrowConfirm(false);
     if (burrowingBook.availableCopies <= 0) {
       alert("This book is currently unavailable");
       return;
     }
 
-    const token = localStorage.getItem("token");
+    
+
+    try {
+
+      const token = localStorage.getItem("token");
     if (!token) {
       alert("Please login to borrow books");
       window.location.href = '/login';
       return;
     }
 
-    try {
+    
       // Check if already borrowed
       const statusResponse = await axios.get(
         `http://localhost:9000/api/books/burrowstatus/${currentUser._id}`,
@@ -446,6 +457,7 @@ function UserDashboard() {
       if (res.data) {
         alert(`Successfully borrowed "${burrowingBook.title}"!`);
         
+        
         // Close modals
         setShowBorrowConfirm(false);
         setBurrowingBook(null);
@@ -462,6 +474,11 @@ function UserDashboard() {
               : book
           )
         );
+
+        //refresh data from server:
+        await loadData();
+        await getBurrowingStatus();
+        
       }
     } catch (error) {
       console.error("Error borrowing book:", error);
