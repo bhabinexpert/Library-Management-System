@@ -7,8 +7,8 @@ import BurrowingModel from "../models/burrowinghistory.models.js";
 export const getAllBurrowings = async (req, res) => {
   try {
     const burrowings = await BurrowingModel.find({status: "burrowed"})
-      .populate("user", "fullName, email")
-      .populate("book", "title, author, category")
+      .populate("user", "fullName email")
+      .populate("book", "title author category")
       .lean();
     res.status(200).json(burrowings);
   } catch (err) {
@@ -122,7 +122,7 @@ export const returnBook = async (req, res) => {
 
     const updatedBook = await bookModel.findById(
       burrowRecord.book._id,
-      "title","availableCopies"
+      "title availableCopies"
     );
 
 
@@ -167,7 +167,7 @@ export const getOverdueBooksCount = async (req, res) => {
 
     // Count documents where status is "borrowed" and dueDate < now
     const count = await BurrowingModel.countDocuments({
-      status: "borrowed",
+      status: "burrowed",
       dueDate: { $lt: now },
     });
 
