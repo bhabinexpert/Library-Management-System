@@ -636,11 +636,11 @@ function UserDashboard() {
                           book.availableCopies === 0 ? "unavailable" : ""
                         } ${isBookBurrowed ? "burrowed" : ""}`}
                       >
-                        {book.availableCopies === 0
+                        {book.availableCopies === 0 && !isBookBurrowed
                           ? "❌ Unavailable"
                           : isBookBurrowed
-                          ? "📖 Already Borrowed"
-                          : "📥 Borrow Book"}
+                          ? "📖 Already Burrowed"
+                          : "📥 Burrow Book"}
                       </button>
                     </div>
                   </div>
@@ -749,7 +749,7 @@ function UserDashboard() {
                       <th>Book Title</th>
                       <th>Author</th>
                       <th>Category</th>
-                      <th>Borrowed Date</th>
+                      <th>Burrowed Date</th>
                       <th>Return Date</th>
                       <th className="status-header">Status</th>
                     </tr>
@@ -763,7 +763,7 @@ function UserDashboard() {
                           <td className="history-book-title">{record.book.title}</td>
                           <td className="history-book-author">{record.book.author}</td>
                           <td>{record.book.category}</td>
-                          <td className="history-date">{new Date(record.borrowDate).toLocaleDateString()}</td>
+                          <td className="history-date">{new Date(record.burrowDate).toLocaleDateString()}</td>
                           <td className="history-date">{new Date(record.returnDate).toLocaleDateString()}</td>
                           <td className="status-cell">
                             <span className="returned-badge">Returned</span>
@@ -821,31 +821,24 @@ function UserDashboard() {
                 </div>
                 <div className="stat-item">
                   <div className="stat-value">{selectedBook.availableCopies}</div>
-                  <div className="stat-label">Available</div>
+                  <div className="stat-label">Available Copies</div>
                 </div>
               </div>
 
               <div className="modal-section">
-                <h4 className="section-heading">Description</h4>
+                <h3 className="section-heading">Description : 🧠</h3>
                 <p className="section-text">{selectedBook.description}</p>
               </div>
 
               <div className="modal-section">
-                <h4 className="section-heading">Details</h4>
+                <h3 className="section-heading">Details : ⬇️</h3>
                 <div className="details-list">
                   <p><strong>Publisher:</strong> {selectedBook.publisher}</p>
                   <p><strong>ISBN:</strong> {selectedBook.isbn}</p>
                 </div>
               </div>
 
-              <div className="modal-section">
-                <h4 className="section-heading">Tags</h4>
-                <div className="tags-container">
-                  {(selectedBook?.tags || []).map((tag, index) => (
-                    <span key={index} className="modal-tag">{tag}</span>
-                  ))}
-                </div>
-              </div>
+              
 
               <div className="modal-actions">
                 <button
@@ -868,11 +861,11 @@ function UserDashboard() {
                     isAlreadyBorrowed(selectedBook._id)) ? "disabled" : ""
                   }`}
                 >
-                  {selectedBook.availableCopies === 0
+                  {selectedBook.availableCopies === 0 && !isAlreadyBorrowed
                     ? "Unavailable"
                     : isAlreadyBorrowed(selectedBook._id)
-                    ? "Already Borrowed"
-                    : "📥 Borrow Book"}
+                    ? "Already Burrowed"
+                    : "📥 Burrow Book"}
                 </button>
               </div>
             </div>
@@ -903,7 +896,7 @@ function UserDashboard() {
                 Cancel
               </button>
               <button onClick={handleBurrowBook} className="primary-button">
-                📥 Confirm Borrow
+                📥 Confirm Burrow
               </button>
             </div>
           </div>

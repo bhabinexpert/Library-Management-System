@@ -95,6 +95,7 @@
   font-weight: bold;
   color: #0f172a;
   margin: 0;
+  font-family: sans-serif;
 }
 
 /* Explore Tab Styles */
@@ -177,8 +178,8 @@
 
 .availability-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   color: white;
   padding: 4px 8px;
   border-radius: 12px;
@@ -192,6 +193,10 @@
 
 .availability-badge.unavailable {
   background-color: #ef4444;
+}
+
+.availability-badge.burrowed {
+  background-color: #F59E0B; 
 }
 
 .borrowed-badge {
@@ -269,7 +274,7 @@
   transition: background-color 0.2s;
 }
 
-.borrow-button:not(.unavailable):not(.borrowed) {
+.borrow-button:not(.unavailable):not(.burrowed) {
   background-color: #2563eb;
   color: white;
 }
@@ -280,9 +285,10 @@
   cursor: pointer;
 }
 
+/* Unavailable state (copies === 0) */
 .borrow-button.unavailable {
-  background-color: #e2e8f0;
-  color: #94a3b8;
+  background-color: #EF4444; /* Red */
+  color: white;
   cursor: not-allowed;
 }
 
@@ -598,11 +604,7 @@
   margin-bottom: 16px;
 }
 
-.section-heading {
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 8px;
-}
+
 
 .section-text {
   color: #64748b;
@@ -782,6 +784,7 @@
   font-weight: 600;
   color: #374151;
   margin-bottom: 12px;
+  
 }
 
 .password-fields {
