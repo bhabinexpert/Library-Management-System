@@ -115,11 +115,16 @@ export const getAllUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { fullName, email, password, role } = req.body;
+    const { fullName, email, currentPassword, newPassword, } = req.body;
 
     // Validate required fields
-    if (!fullName || !email || !role) {
-      return res.status(400).json({ message: "Full name, email, and role are required." });
+    if (!fullName || !email ) {
+      return res.status(400).json({ message: "Full name and email  are required." ,
+        details:{
+          fullName: !fullName ? "Fullname is required" : null,
+          email : !email? "Email is required" : null
+        }
+      });
     }
 
     // Match schema validations
@@ -134,10 +139,6 @@ export const updateUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid email format." });
     }
 
-    if (!["user", "admin"].includes(role)) {
-      return res.status(400).json({ message: "Invalid role provided." });
-    }
-
     const user = await userModel.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found." });
 
@@ -149,21 +150,44 @@ export const updateUser = async (req, res) => {
       }
     }
 
+     // Require current password for any profile update
+    if (!currentPassword) {
+      return res.status(400).json({ 
+        message: "Current password is required to update profile"
+      });
+    }
+    
+    // Handle password change if new password is provided
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: "Current password is required to change password." });
+      }
+
+       // Verify current password
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Current password is incorrect." });
+      }
+
+       // Validate new password
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: "New password must be at least 8 characters long." });
+      }
+    }
+
+    
     // Prepare update object
     const updates = {
       fullName,
-      email,
-      role,
+      email
     };
 
-    if (password && password.trim() !== "") {
-      if (password.length < 8) {
-        return res.status(400).json({ message: "Password must be at least 8 characters long." });
-      }
-      updates.password = await bcrypt.hash(password, 10);
+
+    if (newPassword) {
+      updates.password = await bcrypt.hash(newPassword, 10);
     }
 
-    const updatedUser = await userModel.findByIdAndUpdate(userId, updates, { new: true });
+    const updatedUser = await userModel.findByIdAndUpdate(userId, updates, { new: true, select: "-password" });
 
     res.status(200).json({
       message: "User updated successfully.",
@@ -172,6 +196,21 @@ export const updateUser = async (req, res) => {
   } catch (error) {
     console.error("Update error:", error);
     res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = await userModel.findById(req.user._id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ 
+      error: "Failed to fetch user profile", 
+      message: err.message 
+    });
   }
 };
 
