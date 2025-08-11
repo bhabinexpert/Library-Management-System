@@ -51,7 +51,7 @@ app.get("/api/books/burrowstatus/:id", protect, getBurrowingsByUser);
 app.put("/api/books/burrow/:bookId", createBurrowing);
 app.get("/api/burrowings", protect, getAllBurrowings);
 app.get("/api/burrowings/count", getBorrowedBooksCount);
-app.get("/api/burrowings/overdue", protect, getOverdueBooksCount);
+app.get("/api/burrowings/overdue",  getOverdueBooksCount);
 
 //Return route:
 app.put('/api/books/return/:id', protect, returnBook);

@@ -83,7 +83,7 @@ function UserDashboard() {
       return;
     }
 
-    
+
     // Password validation
     if (profileForm.newPassword) {
       if (profileForm.newPassword !== profileForm.confirmPassword) {
@@ -127,6 +127,7 @@ function UserDashboard() {
 
       if (response.status === 200) {
         alert("Profile updated successfully!");
+        await loadUserData()
         const updatedUser = response.data.user;
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setProfileForm({
@@ -290,6 +291,35 @@ function UserDashboard() {
     }
   };
 
+  const loadUserData = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    // Fetch user profile
+    const userResponse = await axios.get(
+      `http://localhost:9000/api/users/me`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    
+    if (userResponse.data) {
+      setCurrentUser(userResponse.data);
+      localStorage.setItem("user", JSON.stringify(userResponse.data));
+    }
+
+    // Fetch books and borrowing status
+    await loadData();
+  } catch (error) {
+    console.error("Error loading user data:", error);
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+  }
+};
+
+
   // Load books and borrowing data
   const loadData = async () => {
     try {
@@ -318,6 +348,7 @@ function UserDashboard() {
 
         setBurrowedBooks(borrowed);
       }
+      await loadData();
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -325,7 +356,8 @@ function UserDashboard() {
 
   useEffect(() => {
     if (currentUser) {
-      loadData();
+      loadUserData();
+      
     }
   }, [currentUser]);
 
@@ -520,8 +552,9 @@ function UserDashboard() {
         <div>
           <h1 className="dashboard-title">📚 GyanKosh!</h1>
           <p className="dashboard-welcome">
-            Welcome back, {currentUser?.fullName.split(' ')[0] || 'User'}!        
-            {/* {console.log(currentUser?.fullName)} */}
+            Welcome back, {currentUser?.fullName ? currentUser.fullName.split(" ")[0] : "USER"}!
+       
+             {/* {console.log(currentUser?.fullName)}  */}
 
           </p>
         </div>

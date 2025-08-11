@@ -11,7 +11,7 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchBookCount = async () => {
       try {
-        const response = await axios.get("http://localhost:9000/count");
+        const response = await axios.get("http://localhost:9000/api/books/count");
         console.log("Axios Response:", response); // log entire response
         console.log("Total Books from backend:", response.data.totalBooks);
         console.log(response.data.totalBooks);
@@ -29,7 +29,7 @@ function AdminDashboard() {
   useEffect(()=>{
     const fetchBorrowerCount = async ()=>{
       try {
-        const response = await axios.get("http://localhost:9000/burrowercount");
+        const response = await axios.get("http://localhost:9000/api/stats/burrowers/count");
         setBurrowerCount(response.data.burrowerCount);
       } catch (error) {
         console.error("Error fetching borrower Count", error)
@@ -44,7 +44,7 @@ function AdminDashboard() {
   useEffect(()=>{
     const fetchBurrowedBookscount = async()=>{
       try {
-        const response = await axios.get("http://localhost:9000/burrowedbookcount");
+        const response = await axios.get("http://localhost:9000/api/stats/burrowed/count");
         setBurowedBooksCount(response.data.burrowedBooksCount)
       } catch (error) {
         console.error("Error fetching burrowed book count:", error)
@@ -59,7 +59,7 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchOverdueBooksCount = async () => {
       try {
-        const response = await axios.get("http://localhost:9000/overdue-books-count");
+        const response = await axios.get("http://localhost:9000/api/burrowings/overdue");
         setOverdueBooksCount(response.data.overdueBooksCount);
       } catch (error) {
         console.error("Error fetching overdue books count:", error);
@@ -127,7 +127,7 @@ function AdminDashboard() {
   const loadData = async () => {
     try {
       //fetch all books
-      const booksResponse = await axios.get("http://localhost:9000/books");
+      const booksResponse = await axios.get("http://localhost:9000/api/books");
       setBooks(booksResponse.data);
       const burrowed = booksResponse.data.filter(
           (record) => record.status === "burrowed"
