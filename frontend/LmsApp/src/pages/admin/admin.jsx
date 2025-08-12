@@ -161,25 +161,7 @@ function AdminDashboard() {
     }
   };
 
-  const handleEditUser = async (e) => {
-    e.preventDefault();
-    if (!selectedUser) return;
 
-    try {
-      const updatedUser = await updateUser(selectedUser._id, {
-        fullName: userForm.fullName,
-        email: userForm.email,
-        role: userForm.role,
-      });
-      alert(`User ${updatedUser.fullName} updated successfully!`);
-      resetUserForm();
-      setSelectedUser(null);
-      setShowEditUserModal(false);
-      loadData();
-    } catch (err) {
-      alert("Error updating user.");
-    }
-  };
 
   const handleDeleteUser = async (user) => {
     if (
