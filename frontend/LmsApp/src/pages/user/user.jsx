@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef} from "react";
 import "./user.css";
 import axios from "axios";
+import LoadingSpinner from "../../components/loader";
 
 function UserDashboard() {
   // State management
@@ -21,39 +22,88 @@ function UserDashboard() {
   const [burrowingBook, setBurrowingBook] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileForm, setProfileForm] = useState({
-    fullName: currentUser?.fullName || "",
-    email: currentUser?.email || "",
+    fullName: "",
+    email: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
   const [profileError, setProfileError] = useState("");
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  
+
+  // Create ref for current user ID
+  const userIdRef = useRef(null);
+
+  // Update ref when currentUser changes
+  useEffect(() => {
+    userIdRef.current = currentUser?._id;
+  }, [currentUser]);
 
   // Initialize current user from localStorage
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-    
-    if (!storedUser || !token) {
-      window.location.href = '/login';
-      return;
-    }
-    
-    setCurrentUser(JSON.parse(storedUser));
-    loadData();
+    const initializeDashboard = async () => {
+      const storedUser = localStorage.getItem("user");
+      const token = localStorage.getItem("token");
+      
+      if (!storedUser || !token) {
+        window.location.href = '/login';
+        return;
+      }
+      
+      try {
+        setIsLoading(true);
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+        
+        // Fetch updated user data
+        const userResponse = await axios.get(
+          "http://localhost:9000/api/users/me",
+          {
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        const updatedUser = userResponse.data;
+        setCurrentUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        
+        // Load all data
+        await loadData();
+        
+        // Fetch book count
+        const countResponse = await axios.get(
+          "http://localhost:9000/api/books/count",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        setCount(countResponse.data.totalBooks);
+        
+      } catch (error) {
+        console.error("Initialization error:", error);
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeDashboard();
   }, []);
 
-
-
-  // Get unique book categories
-  const getCategories = () => {
-    const categories = [...new Set(books.map((book) => book.category))];
-    return categories.sort();
-  };
-
-
-    // Initialize profile form with current user data
+  // Initialize profile form with current user data
   useEffect(() => {
     if (currentUser) {
       setProfileForm({
@@ -64,8 +114,111 @@ function UserDashboard() {
         confirmPassword: "",
       });
     }
-  }, [currentUser]);
+  }, [currentUser, showProfileModal]);
 
+  // Get unique book categories
+  const getCategories = () => {
+    const categories = [...new Set(books.map((book) => book.category))];
+    return categories.sort();
+  };
+
+  // Load books and borrowing data
+  const loadData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      // Fetch books
+      const booksResponse = await axios.get("http://localhost:9000/api/books", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const booksData = booksResponse.data;
+      
+      // Generate random ratings for books
+      const newRatings = {};
+      booksData.forEach(book => {
+        if (!bookRatings[book._id]) {
+          newRatings[book._id] = (Math.random() * 6.9 + 3).toFixed(1);
+        }
+      });
+      
+      setBookRatings(prev => ({ ...prev, ...newRatings }));
+      setBooks(booksData);
+      setFilteredBooks(booksData);
+
+      // Fetch borrowed books
+      if (userIdRef.current) {
+        setIsBurrowedLoading(true);
+        const burrowedResponse = await axios.get(
+          `http://localhost:9000/api/books/burrowstatus/${userIdRef.current}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const borrowed = burrowedResponse.data.filter(
+          record => record.status === "burrowed" || record.status === "borrowed"
+        );
+
+        setBurrowedBooks(borrowed);
+        setBurrowed(burrowedResponse.data);
+        setIsBurrowedLoading(false);
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+      setIsBurrowedLoading(false);
+    }
+  };
+
+  // Filter books based on search and category
+  useEffect(() => {
+    let filtered = books;
+    const searchTermLower = searchTerm.toLowerCase();
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        book => 
+          book.title.toLowerCase().includes(searchTermLower) ||
+          book.author.toLowerCase().includes(searchTermLower) ||
+          book.category.toLowerCase().includes(searchTermLower)
+      );
+    }
+
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(book => book.category === selectedCategory);
+    }
+
+    setFilteredBooks(filtered);
+  }, [books, searchTerm, selectedCategory]);
+
+  // Calculate time remaining for due dates
+  const getTimeRemaining = (dueDate) => {
+    const now = new Date();
+    const due = new Date(dueDate);
+    
+    if (now > due) {
+      return { expired: true, text: "Overdue", color: "#ef4444" };
+    }
+    
+    const timeDiff = due - now;
+    const days = parseInt(timeDiff / (1000 * 60 * 60 * 24));
+    const hours = parseInt((timeDiff / (1000 * 60 * 60)) % 24);
+
+    if (days > 0) {
+      return {
+        expired: false,
+        text: `${days} day${days > 1 ? "s" : ""} left`,
+        color: days <= 3 ? "#f59e0b" : "#10b981",
+      };
+    } else {
+      return {
+        expired: false,
+        text: `${hours} hour${hours > 1 ? "s" : ""} left`,
+        color: "#ef4444",
+      };
+    }
+  };
 
   // Update user profile
   const handleUpdateProfile = async (e) => {
@@ -75,14 +228,12 @@ function UserDashboard() {
     setProfileError("");
     setIsUpdatingProfile(true);
 
-
     // Require current password for any update
     if (!profileForm.currentPassword) {
       setProfileError("Current password is required to update profile");
       setIsUpdatingProfile(false);
       return;
     }
-
 
     // Password validation
     if (profileForm.newPassword) {
@@ -127,8 +278,8 @@ function UserDashboard() {
 
       if (response.status === 200) {
         alert("Profile updated successfully!");
-        await loadUserData()
         const updatedUser = response.data.user;
+        setCurrentUser(updatedUser);
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setProfileForm({
           ...profileForm,
@@ -155,212 +306,6 @@ function UserDashboard() {
     }
   };
 
-  // Fetch book count
-  useEffect(() => {
-    const fetchBookCount = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const response = await axios.get("http://localhost:9000/api/books/count", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        setCount(response.data.totalBooks);
-      } catch (error) {
-        console.error("Error fetching book count:", error);
-        if (error.response?.status === 401) {
-          handleLogout();
-        }
-      }
-    };
-
-    fetchBookCount();
-  }, []);
-
-  // Fetch books
-  useEffect(() => {
-    const getBooks = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const response = await axios.get("http://localhost:9000/api/books", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        const booksData = response.data;
-        
-        // Generate random ratings for books
-        const newRatings = {};
-        booksData.forEach(book => {
-          if (!bookRatings[book._id]) {
-            newRatings[book._id] = (Math.random() * 6.9 + 3).toFixed(1);
-          }
-        });
-        
-        setBookRatings(prev => ({ ...prev, ...newRatings }));
-        setBooks(booksData);
-        setFilteredBooks(booksData);
-      } catch (error) {
-        console.error("Error getting books:", error);
-      }
-    };
-    
-    getBooks();
-  }, []);
-
-  // Filter books based on search and category
-  useEffect(() => {
-    let filtered = books;
-    const searchTermLower = searchTerm.toLowerCase();
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        book => 
-          book.title.toLowerCase().includes(searchTermLower) ||
-          book.author.toLowerCase().includes(searchTermLower) ||
-          book.category.toLowerCase().includes(searchTermLower)
-      );
-    }
-
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter(book => book.category === selectedCategory);
-    }
-
-    setFilteredBooks(filtered);
-  }, [books, searchTerm, selectedCategory]);
-
-  // Fetch borrowing status
-  const getBurrowingStatus = async () => {
-    if (!currentUser?._id) return;
-    
-    try {
-      setIsBurrowedLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const response = await axios.get(
-        `http://localhost:9000/api/books/burrowstatus/${currentUser._id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setBurrowed(response.data || []);
-    } catch (err) {
-      console.error("Error fetching borrowed books:", err);
-      if (err.response?.status === 401) {
-        handleLogout();
-      }
-    } finally {
-      setIsBurrowedLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getBurrowingStatus();
-  }, [currentUser]);
-
-  // Calculate time remaining for due dates
-  const getTimeRemaining = (dueDate) => {
-    const now = new Date();
-    const due = new Date(dueDate);
-    
-    if (now > due) {
-      return { expired: true, text: "Overdue", color: "#ef4444" };
-    }
-    
-    const timeDiff = due - now;
-    const days = parseInt(timeDiff / (1000 * 60 * 60 * 24));
-    const hours = parseInt((timeDiff / (1000 * 60 * 60)) % 24);
-
-    if (days > 0) {
-      return {
-        expired: false,
-        text: `${days} day${days > 1 ? "s" : ""} left`,
-        color: days <= 3 ? "#f59e0b" : "#10b981",
-      };
-    } else {
-      return {
-        expired: false,
-        text: `${hours} hour${hours > 1 ? "s" : ""} left`,
-        color: "#ef4444",
-      };
-    }
-  };
-
-  const loadUserData = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    // Fetch user profile
-    const userResponse = await axios.get(
-      `http://localhost:9000/api/users/me`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    
-    if (userResponse.data) {
-      setCurrentUser(userResponse.data);
-      localStorage.setItem("user", JSON.stringify(userResponse.data));
-    }
-
-    // Fetch books and borrowing status
-    await loadData();
-  } catch (error) {
-    console.error("Error loading user data:", error);
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
-  }
-};
-
-
-  // Load books and borrowing data
-  const loadData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      // Fetch books
-      const booksResponse = await axios.get("http://localhost:9000/api/books", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      setBooks(booksResponse.data);
-
-      // Fetch borrowed books
-      if (currentUser?._id) {
-        const burrowedResponse = await axios.get(
-          `http://localhost:9000/api/books/burrowstatus/${currentUser._id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const borrowed = burrowedResponse.data.filter(
-          record => record.status === "burrowed" || record.status === "borrowed"
-        );
-
-        setBurrowedBooks(borrowed);
-      }
-      await loadData();
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (currentUser) {
-      loadUserData();
-      
-    }
-  }, [currentUser]);
-
   // Handle book return
   const handleReturnBook = async (burrowRecord) => {
     const token = localStorage.getItem("token");
@@ -373,15 +318,14 @@ function UserDashboard() {
     if (!window.confirm(`Return '${burrowRecord.book.title}'?`)) return;
 
     try {
-
-       // Optimistically update UI by incrementing by 1
-    setFilteredBooks(prevBooks => 
-      prevBooks.map(book => 
-        book._id === burrowRecord.book._id
-          ? { ...book, availableCopies: book.availableCopies + 1 }
-          : book
-      )
-    );
+      // Optimistically update UI
+      setFilteredBooks(prevBooks => 
+        prevBooks.map(book => 
+          book._id === burrowRecord.book._id
+            ? { ...book, availableCopies: book.availableCopies + 1 }
+            : book
+        )
+      );
 
       await axios.put(
         `http://localhost:9000/api/books/return/${burrowRecord._id}`,
@@ -392,19 +336,16 @@ function UserDashboard() {
       alert(`Successfully returned "${burrowRecord.book.title}"!`);
       
       // Refresh data
-      await Promise.all([loadData(), getBurrowingStatus()]);
+      await loadData();
       
-     
     } catch (error) {
       console.error("Error returning book:", error);
       alert(
         error.response?.data?.message || 
         "Error returning book. Please try again!!"
       );
-
       await loadData();
-      if (error.response?.status === 401) handleLogout();
-    }
+    } 
   };
 
   // Handle book selection for details view
@@ -451,25 +392,15 @@ function UserDashboard() {
       return;
     }
 
-    //Disable button to prevent multiple clicks
     setShowBorrowConfirm(false);
-    if (burrowingBook.availableCopies <= 0) {
-      alert("This book is currently unavailable");
-      return;
-    }
-
-    
-
-    try {
-
-      const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       alert("Please login to borrow books");
       window.location.href = '/login';
       return;
     }
 
-    
+    try {
       // Check if already borrowed
       const statusResponse = await axios.get(
         `http://localhost:9000/api/books/burrowstatus/${currentUser._id}`,
@@ -483,14 +414,12 @@ function UserDashboard() {
 
       if (alreadyBurrowed) {
         alert("You have already borrowed this book");
-        setShowBorrowConfirm(false);
         setBurrowingBook(null);
-        await loadData();
         return;
       }
 
       // Borrow book
-      const res = await axios.put(
+      await axios.put(
         `http://localhost:9000/api/books/burrow/${burrowingBook._id}`,
         {
           user: currentUser._id,
@@ -499,43 +428,30 @@ function UserDashboard() {
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 
-      if (res.data) {
-        alert(`Successfully borrowed "${burrowingBook.title}"!`);
-        
-        
-        // Close modals
-        setShowBorrowConfirm(false);
-        setBurrowingBook(null);
-        setShowBookModal(false);
-        
-        // Refresh data
-        await Promise.all([loadData(), getBurrowingStatus()]);
-        
-        // Optimistic UI update
-        setFilteredBooks(prevBooks =>
-          prevBooks.map(book =>
-            book._id === burrowingBook._id
-              ? { ...book, availableCopies: book.availableCopies - 1 }
-              : book
-          )
-        );
-
-        //refresh data from server:
-        await loadData();
-        await getBurrowingStatus();
-        
-      }
+      alert(`Successfully borrowed "${burrowingBook.title}"!`);
+      
+      // Close modals
+      setBurrowingBook(null);
+      setShowBookModal(false);
+      
+      // Refresh data
+      await loadData();
+      
+      // Optimistic UI update
+      setFilteredBooks(prevBooks =>
+        prevBooks.map(book =>
+          book._id === burrowingBook._id
+            ? { ...book, availableCopies: book.availableCopies - 1 }
+            : book
+        )
+      );
+      
     } catch (error) {
       console.error("Error borrowing book:", error);
       const message = error.response?.data?.message || "Unable to borrow book. Please try again.";
       alert(message);
-
-      if (error.response?.status === 401) handleLogout();
-      
-      setShowBorrowConfirm(false);
-      setBurrowingBook(null);
-      await loadData();
     }
+    
   };
 
   // Handle logout
@@ -545,17 +461,26 @@ function UserDashboard() {
     window.location.href = '/login';
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <LoadingSpinner/>
+    )
+  }
   return (
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
-        <div>
+        <div className="usertop">
+          <img src="/logo.png" 
+          style={{ 
+              height: '60px', 
+              marginRight: '15px' 
+            }}/>
+
           <h1 className="dashboard-title">📚 GyanKosh!</h1>
           <p className="dashboard-welcome">
-            Welcome back, {currentUser?.fullName ? currentUser.fullName.split(" ")[0] : "USER"}!
-       
-             {/* {console.log(currentUser?.fullName)}  */}
-
+            Welcome back, {currentUser?.fullName ? currentUser.fullName.split(" ")[0] : "User"}!
           </p>
         </div>
 
@@ -713,7 +638,12 @@ function UserDashboard() {
               My Borrowed Books ({burrowedBooks.length})
             </h2>
 
-            {burrowedBooks.length > 0 ? (
+            {isBurrowedLoading ? (
+              <div className="loading-section">
+                <div className="spinner"></div>
+                <p>Loading your books...</p>
+              </div>
+            ) : burrowedBooks.length > 0 ? (
               <div className="borrowed-grid">
                 {burrowedBooks.map((burrowRecord) => {
                   const book = burrowRecord.book;
@@ -790,7 +720,12 @@ function UserDashboard() {
             <h2 className="section-title">Reading History</h2>
             
             <div className="history-table-container">
-              {burrowed.filter(record => record.status === "returned").length > 0 ? (
+              {isBurrowedLoading ? (
+                <div className="loading-section">
+                  <div className="spinner"></div>
+                  <p>Loading your history...</p>
+                </div>
+              ) : burrowed.filter(record => record.status === "returned").length > 0 ? (
                 <table className="history-table">
                   <thead>
                     <tr>

@@ -3,7 +3,9 @@
   min-height: 100vh;
   background-color: #f8fafc;
 }
-
+.usertop{
+  display: flex;
+}
 /* Header Styles */
 .dashboard-header {
   background-color: white;
