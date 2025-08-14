@@ -24,20 +24,37 @@ function AdminDashboard() {
     fetchBookCount();
   }, []);
 
-  const[ burrowerCount, setBurrowerCount] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
 
-  useEffect(()=>{
-    const fetchBorrowerCount = async ()=>{
+  useEffect(() => {
+    const TotalUsersCount = async()=>{
       try {
-        const response = await axios.get("http://localhost:9000/api/stats/burrowers/count");
-        setBurrowerCount(response.data.burrowerCount);
-      } catch (error) {
-        console.error("Error fetching borrower Count", error)
+          const response =  await axios.get("http://localhost:9000/totalusers");
+          setTotalUsers(response.data.totalUsers);
+      }catch(error){
+        console.log("Error while getting total users!", error)
       }
     };
-
-    fetchBorrowerCount();
+    TotalUsersCount();
   },[]);
+      
+
+
+  // const[ burrowerCount, setBurrowerCount] = useState(0);
+
+  // useEffect(()=>{
+  //   const fetchBorrowerCount = async ()=>{
+  //     try {
+  //       const response = await axios.get("http://localhost:9000/api/stats/burrowers/count");
+  //       setBurrowerCount(response.data.burrowerCount);
+  //     } catch (error) {
+  //       console.error("Error fetching borrower Count", error)
+  //     }
+  //   };
+
+  //   fetchBorrowerCount();
+  // },[]);
+
 
   const [burrowedBooksCount, setBurowedBooksCount] = useState(0);
 
@@ -70,7 +87,7 @@ function AdminDashboard() {
   }, []);
 
 
-  const [users, setUsers] = useState([]);
+
   const [books, setBooks] = useState([]);
   const [burrowRecords, setBurrowRecords] = useState([]);
   const [statistics, setStatistics] = useState({});
@@ -83,6 +100,7 @@ function AdminDashboard() {
   const [showEditBookModal, setShowEditBookModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
 
+  
   const [userForm, setUserForm] = useState({
     fullName: "",
     email: "",
@@ -107,6 +125,9 @@ function AdminDashboard() {
     loadData();
   }, [activeTab]);
 
+  const storedUser = localStorage.getItem("user");
+  const token = localStorage.getItem("token");
+ 
   // const loadData = async () => {
   //   try {
   //     const usersData = await getAllUsers();
@@ -139,6 +160,11 @@ function AdminDashboard() {
       console.error("Error loading data:", error);
     }
   };
+
+  
+
+
+
 
   const navigate = useNavigate();
 
@@ -327,7 +353,7 @@ function AdminDashboard() {
       <header className="admin-header">
         <div>
           <h1 className="admin-title">GyanKosh Admin Panel</h1>
-          <p className="admin-welcome">Welcome back,{}!</p>
+          <p className="admin-welcome">Welcome back,{storedUser?.fullName ? storedUser.fullName.split(" ")[0] : "Admin"}!</p>
         </div>
 
         <button onClick={handleLogout} className="logout-button">
@@ -379,7 +405,8 @@ function AdminDashboard() {
                   <div className="stat-icon">👥</div>
                   <div>
                     <div className="stat-value green">
-                      {burrowerCount} 
+                      {totalUsers} 
+                     
                       {/* {total users in db} */}
                     </div>
                     <div className="stat-label">Active Users</div>
