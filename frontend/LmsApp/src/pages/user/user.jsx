@@ -474,16 +474,20 @@ function UserDashboard() {
         <div className="usertop">
           <img src="/logo.png" 
           style={{ 
-              height: '60px', 
-              marginRight: '15px' 
+              height: '90px', 
+              marginRight: '15px',
+              width:'90px',
+              marginTop: '0px' 
             }}/>
 
           <h1 className="dashboard-title">📚 GyanKosh!</h1>
-          <p className="dashboard-welcome">
-            Welcome back, {currentUser?.fullName ? currentUser.fullName.split(" ")[0] : "User"}!
-          </p>
         </div>
-
+        <div>
+          <h3 className="dashboard-welcome">
+            Welcome back, {currentUser?.fullName ? currentUser.fullName.split(" ")[0] : "User"}!
+          </h3>
+        </div>
+           
         <div className="header-actions">
           <button
             onClick={() => setShowProfileModal(true)}
