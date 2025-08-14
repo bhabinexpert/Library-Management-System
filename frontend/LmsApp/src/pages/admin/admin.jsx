@@ -40,22 +40,6 @@ function AdminDashboard() {
       
 
 
-  // const[ burrowerCount, setBurrowerCount] = useState(0);
-
-  // useEffect(()=>{
-  //   const fetchBorrowerCount = async ()=>{
-  //     try {
-  //       const response = await axios.get("http://localhost:9000/api/stats/burrowers/count");
-  //       setBurrowerCount(response.data.burrowerCount);
-  //     } catch (error) {
-  //       console.error("Error fetching borrower Count", error)
-  //     }
-  //   };
-
-  //   fetchBorrowerCount();
-  // },[]);
-
-
   const [burrowedBooksCount, setBurowedBooksCount] = useState(0);
 
   useEffect(()=>{
@@ -90,7 +74,7 @@ function AdminDashboard() {
 
   const [books, setBooks] = useState([]);
   const [burrowRecords, setBurrowRecords] = useState([]);
-  const [statistics, setStatistics] = useState({});
+  
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
@@ -127,22 +111,21 @@ function AdminDashboard() {
 
   const storedUser = localStorage.getItem("user");
   const token = localStorage.getItem("token");
- 
-  // const loadData = async () => {
-  //   try {
-  //     const usersData = await getAllUsers();
-  //     const booksData = await getAllBooks();
-  //     const borrowData = await getAllBorrowRecords();
-  //     const stats = await getStatistics();
 
-  //     setUsers(usersData);
-  //     setBooks(booksData);
-  //     setBorrowRecords(borrowData);
-  //     setStatistics(stats);
-  //   } catch (err) {
-  //     console.error("Error loading data:", err);
-  //   }
-  // };
+ const [statistics, setStatistics] = useState({});
+ useEffect(() => {
+    const fetchCategoryCounts = async () => {
+      try {
+        const res = await axios.get("http://localhost:9000/api/category-counts"); 
+        console.log("Category counts:", res.data);
+        setStatistics(res.data);
+      } catch (error) {
+        console.error("Error fetching category counts:", error);
+      }
+    };
+
+    fetchCategoryCounts();
+  }, []);
 
   // loads books and burrow records
   const loadData = async () => {
@@ -160,6 +143,52 @@ function AdminDashboard() {
       console.error("Error loading data:", error);
     }
   };
+
+  const [users, setUsers] = useState([]);
+
+useEffect(() => {
+  if (activeTab === "users") {
+    const fetchUsersWithBurrowCount = async () => {
+      try {
+        //  Fetch all users
+        const res = await axios.get("http://localhost:9000/api/userdata");
+        const usersData = res.data;
+
+        //  Fetch borrow counts for each user in parallel
+        const burrowCounts = await Promise.all(
+          
+          usersData.map(async (user) => {
+            const burrowRes = await axios.get(
+              `http://localhost:9000/api/books/burrowstatus/${user._id}`
+            );
+             const currentBurrows = Array.isArray(burrowRes.data)
+              ? burrowRes.data.filter(
+                  (record) =>
+                    record.status === "burrowed" || record.status === "borrowed"
+                ).length
+              : 0;
+             
+            return {
+              ...user,
+              currentBurrows
+              
+            };
+          })
+        );
+        //update the state
+        setUsers(burrowCounts);
+
+        // console.log("Users with borrow count:", burrowCounts);
+      } catch (error) {
+        console.error("Error fetching users or borrow counts:", error);
+      }
+    };
+
+    fetchUsersWithBurrowCount();
+  }
+}, [activeTab]);
+
+
 
   
 
@@ -368,7 +397,7 @@ function AdminDashboard() {
             { id: "overview", label: "📊 Overview", icon: "📊" },
             { id: "users", label: "👥 Users", icon: "👥" },
             { id: "books", label: "📚 Books", icon: "📚" },
-            { id: "borrowing", label: "📖 Borrowing", icon: "📖" },
+            { id: "burrowing", label: "📖 Burrowing", icon: "📖" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -479,16 +508,15 @@ function AdminDashboard() {
                   <tr>
                     <th>User</th>
                     <th>Role</th>
-                    <th>Borrowed Books</th>
+                    <th>No. of Burrowed Books</th>
                     <th>Join Date</th>
                     <th className="text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => {
-                    const userStats = { currentBorrows: 0 }; // Replace with actual data
-
-                    return (
+                  {users.map((user) => 
+                  
+                    (
                       <tr key={user._id}>
                         <td>
                           <div>
@@ -507,7 +535,7 @@ function AdminDashboard() {
                         </td>
                         <td>
                           <span className="borrowed-count">
-                            {userStats.currentBorrows}
+                            {user.currentBurrows ?? 0}
                           </span>
                         </td>
                         <td>
@@ -525,9 +553,9 @@ function AdminDashboard() {
                             </button>
                             <button
                               onClick={() => handleDeleteUser(user)}
-                              disabled={user._id === currentUser?._id}
+                              disabled={user._id === storedUser?._id}
                               className={`delete-button ${
-                                user._id === currentUser?._id ? "disabled" : ""
+                                user._id === storedUser?._id ? "disabled" : ""
                               }`}
                             >
                               🗑️ Delete
@@ -535,8 +563,8 @@ function AdminDashboard() {
                           </div>
                         </td>
                       </tr>
-                    );
-                  })}
+                    )
+                  )}
                 </tbody>
               </table>
             </div>
@@ -619,7 +647,7 @@ function AdminDashboard() {
         )}
 
         {/* Borrowing Tab */}
-        {activeTab === "borrowing" && (
+        {activeTab === "burrowing" && (
           <div>
             <h2 className="section-title">
               Borrowing History ({burrowRecords.length} records)
@@ -683,14 +711,14 @@ function AdminDashboard() {
                                 ? "returned"
                                 : isOverdue
                                 ? "overdue"
-                                : "borrowed"
+                                : "burrowed"
                             }`}
                           >
                             {record.status === "returned"
                               ? "✅ Returned"
                               : isOverdue
                               ? "⚠️ Overdue"
-                              : "📖 Borrowed"}
+                              : "📖 Burrowed"}
                           </span>
                         </td>
                       </tr>

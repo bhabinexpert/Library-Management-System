@@ -95,11 +95,11 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// Admin-only: Fetch all users
+// Admin-only: Fetch all users count
 export const getAllUsers = async (req, res) => {
   try {
     
-    const count = await userModel.countDocuments(); 
+    const count = await userModel.countDocuments().select("-password"); 
     res.status(200).json({ totalUsers: count });
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -241,3 +241,13 @@ export const getBurrowerCount = async (req, res)=>{
   }
 }
 
+//get all users data:
+export const getAllUsersData = async (req, res) => {
+  try {
+    const users = await userModel.find().select("-password").sort({ createdAt: -1 }); // newest first
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Internal server error!" });
+  }
+};

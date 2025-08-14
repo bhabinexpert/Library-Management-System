@@ -134,7 +134,13 @@ export const getBurrowingsByUser = async (req, res) => {
       .populate("book", "title author category coverImage")
       .sort({burrowDate: -1})
       .lean();
-    res.status(200).json(burrowings);
+     ; // Count number of borrowings
+     // Ensure each record has status (borrowed / returned)
+    const formatted = burrowings.map((b) => ({
+      ...b,
+      status: b.status || "burrowed", // default if missing
+    }));
+    res.status(200).json( formatted);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch user's burrowing history", message: err.message });
   }
