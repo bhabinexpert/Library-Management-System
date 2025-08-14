@@ -65,3 +65,24 @@ export const deleteBook = async (req, res) => {
     res.status(500).json({ error: "Failed to delete book", message: err.message });
   }
 };
+
+// book category with it's count
+
+export const getBookCategoryCounts = async (req, res) => {
+  try {
+    const categoryCounts = await bookModel.aggregate([
+      { $group: { _id: "$category", count: { $sum: 1 } } }
+    ]);
+
+    // Convert array to object { category: count }
+    const formattedCounts = {};
+    categoryCounts.forEach((item) => {
+      formattedCounts[item._id] = item.count;
+    });
+
+    res.status(200).json({ categoryCounts: formattedCounts });
+  } catch (error) {
+    console.error("Error fetching category counts:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

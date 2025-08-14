@@ -5,6 +5,7 @@ import cors from "cors";
 import express from "express";
 import {
     getAllUsers,
+  getAllUsersData,
   getBurrowerCount,
   getCurrentUser,
   loginUser,
@@ -22,6 +23,7 @@ import {
   createBook,
   getBookById,
   countBooks,
+  getBookCategoryCounts,
 } from "../backend/controllers/book.controller.js";
 
 import { protect } from "./authorization/auth.middleware.js";
@@ -54,12 +56,16 @@ app.post("/login", loginUser);
 
 app.get("/totalusers",getAllUsers)
 
+app.get("/api/userdata",getAllUsersData)
+
+app.get("/api/category-counts", getBookCategoryCounts);
+
 // Books routes
 app.get("/api/books", getAllBooks);
 app.get("/api/books/count", countBooks);
 
 // Burrowing routes
-app.get("/api/books/burrowstatus/:id", protect, getBurrowingsByUser);
+app.get("/api/books/burrowstatus/:id",  getBurrowingsByUser);
 app.put("/api/books/burrow/:bookId", createBurrowing);
 app.get("/api/burrowings", protect, getAllBurrowings);
 app.get("/api/burrowings/count", getBorrowedBooksCount);
@@ -132,4 +138,3 @@ mongoose
     console.log("Database connection Error;", err);
   });
 
-//frontend bata endpoint call garera data backend ma pathuaney, token ko concept ley backend ma login authorization garney ani admin logged in chha ki user logged in chha kasari herrney ani individual jaty user create hunxa sabhko data dekhaune like burrowing list and every thing!!

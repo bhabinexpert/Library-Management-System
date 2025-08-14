@@ -157,11 +157,14 @@ function UserDashboard() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        const borrowed = burrowedResponse.data.filter(
+         // Ensure data is an array
+    const records = Array.isArray(burrowedResponse.data) ? burrowedResponse.data : [];
+
+        const burrowed = records.filter(
           record => record.status === "burrowed" || record.status === "borrowed"
         );
 
-        setBurrowedBooks(borrowed);
+        setBurrowedBooks(burrowed);
         setBurrowed(burrowedResponse.data);
         setIsBurrowedLoading(false);
       }
