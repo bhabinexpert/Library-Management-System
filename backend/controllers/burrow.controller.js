@@ -61,13 +61,13 @@ export const createBurrowing = async (req, res) => {
     // Create new borrow record
     const burrowDate = new Date();
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 15);
+    dueDate.setDate(burrowDate.getDate() + 15);
 
     const newBurrow = new BurrowingModel({
       user,
       book,
-      burrowDate: burrowDate || new Date(),
-      dueDate:  new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+      burrowDate,
+      dueDate,
       status: "burrowed"
     });
 
@@ -130,8 +130,8 @@ export const returnBook = async (req, res) => {
 export const getBurrowingsByUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const burrowings = await BurrowingModel.find({ user: req.params.id })
-      .populate("book", "title author category coverImage")
+    const burrowings = await BurrowingModel.find({ user: userId })
+      .populate("book", "title author category")
       .sort({burrowDate: -1})
       .lean();
      ; // Count number of borrowings
