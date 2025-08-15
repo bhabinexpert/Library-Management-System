@@ -133,16 +133,19 @@ function AdminDashboard() {
       //fetch all books
       const booksResponse = await axios.get("http://localhost:9000/api/books");
       setBooks(booksResponse.data);
-      const burrowed = booksResponse.data.filter(
-          (record) => record.status === "burrowed"
-        );
 
-        setBurrowRecords(burrowed)
+     //fetch all burrowings
+  const burrowResponse = await axios.get("http://localhost:9000/api/burrowings");
+  setBurrowRecords(burrowResponse.data)
+  console.log(burrowResponse.data)
       
     } catch (error) {
       console.error("Error loading data:", error);
     }
   };
+
+
+
 
   const [users, setUsers] = useState([]);
 
@@ -650,7 +653,7 @@ useEffect(() => {
         {activeTab === "burrowing" && (
           <div>
             <h2 className="section-title">
-              Borrowing History ({burrowRecords.length} records)
+              Burrowing History ({burrowRecords.length} records)
             </h2>
 
             <div className="table-container">
@@ -666,10 +669,10 @@ useEffect(() => {
                 </thead>
                 <tbody>
                   {burrowRecords.map((record) => {
-                    const user = getUserDetails(record.user);
-                    const book = getBookDetails(record.book);
+                    const user = record.user;
+                    const book = record.book;
                     const isOverdue =
-                      record.status === "borrowed" &&
+                      record.status === "burrowed" &&
                       new Date() > record.dueDate;
 
                     return (
@@ -692,7 +695,7 @@ useEffect(() => {
                         </td>
                         <td>
                           <span className="date-text">
-                            {new Date(record.borrowDate).toLocaleDateString()}
+                            {new Date(record.burrowDate).toLocaleDateString()}
                           </span>
                         </td>
                         <td>

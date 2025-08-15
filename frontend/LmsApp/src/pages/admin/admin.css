@@ -231,6 +231,11 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
+.data-table th.text-center {
+  padding-left: 80px; 
+}
+
+
 .data-table td {
   padding: 16px;
   border-bottom: 1px solid #f1f5f9;
@@ -240,9 +245,6 @@
   border-bottom: none;
 }
 
-.text-center {
-  text-align: center;
-}
 
 .user-name {
   font-weight: 600;
