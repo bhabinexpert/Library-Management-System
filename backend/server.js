@@ -67,7 +67,7 @@ app.get("/api/books/count", countBooks);
 // Burrowing routes
 app.get("/api/books/burrowstatus/:id",  getBurrowingsByUser);
 app.put("/api/books/burrow/:bookId", createBurrowing);
-app.get("/api/burrowings", protect, getAllBurrowings);
+app.get("/api/burrowings", getAllBurrowings);
 app.get("/api/burrowings/count", getBorrowedBooksCount);
 app.get("/api/burrowings/overdue", getOverdueBooksCount);
 
