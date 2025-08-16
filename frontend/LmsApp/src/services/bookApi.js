@@ -1,0 +1,40 @@
+import axios from "axios";
+
+const API_URL = "http://localhost:9000";
+
+// BOOKS
+export const addBook = (data) => {
+  // get token from localStorage
+
+  const token = localStorage.getItem("token");
+
+  return axios.post(`${API_URL}/api/books`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const updateBook = (id, data) => {
+  // get token from localStorage
+
+  const token = localStorage.getItem("token");
+
+  return axios.put(`${API_URL}/api/books/${id}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const deleteBook = (id) => {
+  // get token from localStorage
+
+  const token = localStorage.getItem("token");
+
+  return axios.delete(`${API_URL}/api/books/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

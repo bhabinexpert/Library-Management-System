@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import express from "express";
 import {
+  deleteUser,
     getAllUsers,
   getAllUsersData,
   getBurrowerCount,
@@ -52,6 +53,7 @@ app.get("/", (req, res) => {
 
 app.post("/signup", registerUser);
 
+
 app.post("/login", loginUser);
 
 app.get("/totalusers",getAllUsers)
@@ -90,6 +92,7 @@ app.get("/api/stats/overdue/count", getOverdueBooksCount);
 //updates user
 app.get("/api/users/me", protect, getCurrentUser);
 app.put("/api/users/:id", protect, updateUser);
+app.put("/api/deleteusers/:id", protect, deleteUser);
 
 // hard coded the books details into db..
 

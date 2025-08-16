@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./admin.css";
+import { deleteUser, registerUser, updateUser } from "../../services/userApi";
+import { addBook, deleteBook, updateBook } from "../../services/bookApi";
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -11,7 +13,9 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchBookCount = async () => {
       try {
-        const response = await axios.get("http://localhost:9000/api/books/count");
+        const response = await axios.get(
+          "http://localhost:9000/api/books/count"
+        );
         console.log("Axios Response:", response); // log entire response
         console.log("Total Books from backend:", response.data.totalBooks);
         console.log(response.data.totalBooks);
@@ -27,28 +31,28 @@ function AdminDashboard() {
   const [totalUsers, setTotalUsers] = useState(0);
 
   useEffect(() => {
-    const TotalUsersCount = async()=>{
+    const TotalUsersCount = async () => {
       try {
-          const response =  await axios.get("http://localhost:9000/totalusers");
-          setTotalUsers(response.data.totalUsers);
-      }catch(error){
-        console.log("Error while getting total users!", error)
+        const response = await axios.get("http://localhost:9000/totalusers");
+        setTotalUsers(response.data.totalUsers);
+      } catch (error) {
+        console.log("Error while getting total users!", error);
       }
     };
     TotalUsersCount();
-  },[]);
-      
-
+  }, []);
 
   const [burrowedBooksCount, setBurowedBooksCount] = useState(0);
 
-  useEffect(()=>{
-    const fetchBurrowedBookscount = async()=>{
+  useEffect(() => {
+    const fetchBurrowedBookscount = async () => {
       try {
-        const response = await axios.get("http://localhost:9000/api/stats/burrowed/count");
-        setBurowedBooksCount(response.data.burrowedBooksCount)
+        const response = await axios.get(
+          "http://localhost:9000/api/stats/burrowed/count"
+        );
+        setBurowedBooksCount(response.data.burrowedBooksCount);
       } catch (error) {
-        console.error("Error fetching burrowed book count:", error)
+        console.error("Error fetching burrowed book count:", error);
       }
     };
 
@@ -60,7 +64,9 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchOverdueBooksCount = async () => {
       try {
-        const response = await axios.get("http://localhost:9000/api/burrowings/overdue");
+        const response = await axios.get(
+          "http://localhost:9000/api/burrowings/overdue"
+        );
         setOverdueBooksCount(response.data.overdueBooksCount);
       } catch (error) {
         console.error("Error fetching overdue books count:", error);
@@ -70,21 +76,116 @@ function AdminDashboard() {
     fetchOverdueBooksCount();
   }, []);
 
+  
+  useEffect(() => {
+    loadData();
+  }, [activeTab]);
 
+  const storedUser = localStorage.getItem("user");
+  const token = localStorage.getItem("token");
+
+  const [statistics, setStatistics] = useState({});
+
+  useEffect(() => {
+    const fetchCategoryCounts = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:9000/api/category-counts"
+        );
+        console.log("Category counts:", res.data);
+        setStatistics(res.data);
+      } catch (error) {
+        console.error("Error fetching category counts:", error);
+      }
+    };
+
+    fetchCategoryCounts();
+  }, []);
 
   const [books, setBooks] = useState([]);
   const [burrowRecords, setBurrowRecords] = useState([]);
+
+  // loads books and burrow records
+  const loadData = async () => {
+    try {
+      //fetch all books
+      const booksResponse = await axios.get("http://localhost:9000/api/books");
+      setBooks(booksResponse.data);
+
+      //fetch all burrowings
+      const burrowResponse = await axios.get(
+        "http://localhost:9000/api/burrowings"
+      );
+      setBurrowRecords(burrowResponse.data);
+      console.log(burrowResponse.data);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+  };
+
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    if (activeTab === "users") {
+      const fetchUsersWithBurrowCount = async () => {
+        try {
+          //  Fetch all users
+          const res = await axios.get("http://localhost:9000/api/userdata");
+          const usersData = res.data;
+
+          //  Fetch borrow counts for each user in parallel
+          const burrowCounts = await Promise.all(
+            usersData.map(async (user) => {
+              const burrowRes = await axios.get(
+                `http://localhost:9000/api/books/burrowstatus/${user._id}`
+              );
+              const currentBurrows = Array.isArray(burrowRes.data)
+                ? burrowRes.data.filter(
+                    (record) =>
+                      record.status === "burrowed" ||
+                      record.status === "borrowed"
+                  ).length
+                : 0;
+
+              return {
+                ...user,
+                currentBurrows,
+              };
+            })
+          );
+          //update the state
+          setUsers(burrowCounts);
+
+          // console.log("Users with borrow count:", burrowCounts);
+        } catch (error) {
+          console.error("Error fetching users or borrow counts:", error);
+        }
+      };
+
+      fetchUsersWithBurrowCount();
+    }
+  }, [activeTab]);
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/"); 
+  };
+
   
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
+
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [showAddBookModal, setShowAddBookModal] = useState(false);
   const [showEditBookModal, setShowEditBookModal] = useState(false);
+
   const [selectedBook, setSelectedBook] = useState(null);
 
-  
   const [userForm, setUserForm] = useState({
     fullName: "",
     email: "",
@@ -101,116 +202,19 @@ function AdminDashboard() {
     publisher: "",
     publishedYear: new Date().getFullYear(),
     coverImage: "",
-    availableCopies: 1,
-    totalCopies: 1,
+    availableCopies: null ,
+    totalCopies: null,
   });
 
-  useEffect(() => {
-    loadData();
-  }, [activeTab]);
-
-  const storedUser = localStorage.getItem("user");
-  const token = localStorage.getItem("token");
-
- const [statistics, setStatistics] = useState({});
- useEffect(() => {
-    const fetchCategoryCounts = async () => {
-      try {
-        const res = await axios.get("http://localhost:9000/api/category-counts"); 
-        console.log("Category counts:", res.data);
-        setStatistics(res.data);
-      } catch (error) {
-        console.error("Error fetching category counts:", error);
-      }
-    };
-
-    fetchCategoryCounts();
-  }, []);
-
-  // loads books and burrow records
-  const loadData = async () => {
-    try {
-      //fetch all books
-      const booksResponse = await axios.get("http://localhost:9000/api/books");
-      setBooks(booksResponse.data);
-
-     //fetch all burrowings
-  const burrowResponse = await axios.get("http://localhost:9000/api/burrowings");
-  setBurrowRecords(burrowResponse.data)
-  console.log(burrowResponse.data)
-      
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  };
-
-
-
-
-  const [users, setUsers] = useState([]);
-
-useEffect(() => {
-  if (activeTab === "users") {
-    const fetchUsersWithBurrowCount = async () => {
-      try {
-        //  Fetch all users
-        const res = await axios.get("http://localhost:9000/api/userdata");
-        const usersData = res.data;
-
-        //  Fetch borrow counts for each user in parallel
-        const burrowCounts = await Promise.all(
-          
-          usersData.map(async (user) => {
-            const burrowRes = await axios.get(
-              `http://localhost:9000/api/books/burrowstatus/${user._id}`
-            );
-             const currentBurrows = Array.isArray(burrowRes.data)
-              ? burrowRes.data.filter(
-                  (record) =>
-                    record.status === "burrowed" || record.status === "borrowed"
-                ).length
-              : 0;
-             
-            return {
-              ...user,
-              currentBurrows
-              
-            };
-          })
-        );
-        //update the state
-        setUsers(burrowCounts);
-
-        // console.log("Users with borrow count:", burrowCounts);
-      } catch (error) {
-        console.error("Error fetching users or borrow counts:", error);
-      }
-    };
-
-    fetchUsersWithBurrowCount();
-  }
-}, [activeTab]);
-
-
-
-  
-
-
-
-
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/"); // ✅ Proper hook usage
-  };
 
   const handleAddUser = async (e) => {
     e.preventDefault();
     try {
-      const newUser = await addUser(userForm);
+      const newUser = await registerUser(userForm);
       alert(`User ${newUser.fullName} added successfully!`);
+
+      // update frontend list without full reload
+      setUsers((prev) => [...prev, newUser]);
       resetUserForm();
       setShowAddUserModal(false);
       loadData();
@@ -227,15 +231,23 @@ useEffect(() => {
       const updatedUser = await updateUser(selectedUser._id, {
         fullName: userForm.fullName,
         email: userForm.email,
+        currentPassword: userForm.currentPassword,
         role: userForm.role,
       });
+      
       alert(`User ${updatedUser.fullName} updated successfully!`);
+
+       // update frontend list
+      setUsers((prev) =>
+      prev.map((u) => (u._id === updatedUser._id ? updatedUser : u))
+    );
       resetUserForm();
       setSelectedUser(null);
       setShowEditUserModal(false);
       loadData();
     } catch (err) {
       alert("Error updating user.");
+      console.log(err)
     }
   };
 
@@ -248,6 +260,9 @@ useEffect(() => {
       try {
         await deleteUser(user._id);
         alert(`User ${user.fullName} deleted successfully.`);
+
+        // update frontend
+        setUsers((prev) => prev.filter((u) => u._id !== user._id));
         loadData();
       } catch (err) {
         alert("Error deleting user.");
@@ -257,13 +272,22 @@ useEffect(() => {
 
   const handleAddBook = async (e) => {
     e.preventDefault();
+
+    // validate cover image url
+  if (!bookForm.coverImage || !/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(bookForm.coverImage)) {
+    alert("Please provide a valid cover image URL.");
+    return;
+  }
     try {
       const newBook = await addBook({
         ...bookForm,
         availableCopies: bookForm.totalCopies,
-        coverImage: bookForm.coverImage || getRandomColor(),
+        
       });
       alert(`Book "${newBook.title}" added successfully!`);
+
+       // update frontend list
+      setBooks((prev) => [...prev, newBook]);
       resetBookForm();
       setShowAddBookModal(false);
       loadData();
@@ -285,11 +309,18 @@ useEffect(() => {
         description: bookForm.description,
         publisher: bookForm.publisher,
         publishedYear: bookForm.publishedYear,
-        coverImage: bookForm.coverImage,
+        // coverImage: bookForm.coverImage,
         totalCopies: bookForm.totalCopies,
         availableCopies: bookForm.availableCopies,
       });
       alert(`Book "${updatedBook.title}" updated successfully!`);
+
+      // update frontend list
+    setBooks((prev) =>
+      prev.map((b) => (b._id === updatedBook._id ? updatedBook : b))
+    );
+
+
       resetBookForm();
       setSelectedBook(null);
       setShowEditBookModal(false);
@@ -298,7 +329,7 @@ useEffect(() => {
       alert("Error updating book.");
     }
   };
-  
+
   const handleDeleteBook = async (book) => {
     if (
       window.confirm(
@@ -308,6 +339,10 @@ useEffect(() => {
       try {
         await deleteBook(book._id);
         alert(`Book "${book.title}" deleted successfully.`);
+
+        // update frontend
+      setBooks((prev) => prev.filter((b) => b._id !== book._id));
+      
         loadData();
       } catch (err) {
         alert("Error deleting book.");
@@ -337,18 +372,6 @@ useEffect(() => {
       availableCopies: 1,
       totalCopies: 1,
     });
-  };
-
-  const getRandomColor = () => {
-    const colors = [
-      "#3b82f6",
-      "#10b981",
-      "#f59e0b",
-      "#ef4444",
-      "#8b5cf6",
-      "#ec4899",
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
   };
 
   const openEditUser = (user) => {
@@ -385,7 +408,11 @@ useEffect(() => {
       <header className="admin-header">
         <div>
           <h1 className="admin-title">GyanKosh Admin Panel</h1>
-          <p className="admin-welcome">Welcome back,{storedUser?.fullName ? storedUser.fullName.split(" ")[0] : "Admin"}!</p>
+          <p className="admin-welcome">
+            Welcome back,
+            {storedUser?.fullName ? storedUser.fullName.split(" ")[0] : "Admin"}
+            !
+          </p>
         </div>
 
         <button onClick={handleLogout} className="logout-button">
@@ -426,7 +453,7 @@ useEffect(() => {
                 <div className="stat-content">
                   <div className="stat-icon">📚</div>
                   <div>
-                    <div className="stat-value blue">{(count)}</div>
+                    <div className="stat-value blue">{count}</div>
                     <div className="stat-label">Total Books</div>
                   </div>
                 </div>
@@ -437,8 +464,8 @@ useEffect(() => {
                   <div className="stat-icon">👥</div>
                   <div>
                     <div className="stat-value green">
-                      {totalUsers} 
-                     
+                      {totalUsers}
+
                       {/* {total users in db} */}
                     </div>
                     <div className="stat-label">Active Users</div>
@@ -453,7 +480,7 @@ useEffect(() => {
                     <div className="stat-value yellow">
                       {burrowedBooksCount}
                     </div>
-                    <div className="stat-label">Books Borrowed</div>
+                    <div className="stat-label">Books Burrowed</div>
                   </div>
                 </div>
               </div>
@@ -462,9 +489,7 @@ useEffect(() => {
                 <div className="stat-content">
                   <div className="stat-icon">⚠️</div>
                   <div>
-                    <div className="stat-value red">
-                      {overdueBooksCount}
-                    </div>
+                    <div className="stat-value red">{overdueBooksCount}</div>
                     <div className="stat-label">Overdue Books</div>
                   </div>
                 </div>
@@ -517,57 +542,54 @@ useEffect(() => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => 
-                  
-                    (
-                      <tr key={user._id}>
-                        <td>
-                          <div>
-                            <div className="user-name">{user.fullName}</div>
-                            <div className="user-email">{user.email}</div>
-                          </div>
-                        </td>
-                        <td>
-                          <span
-                            className={`role-badge ${
-                              user.role === "admin" ? "admin" : "user"
+                  {users.map((user) => (
+                    <tr key={user._id}>
+                      <td>
+                        <div>
+                          <div className="user-name">{user.fullName}</div>
+                          <div className="user-email">{user.email}</div>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className={`role-badge ${
+                            user.role === "admin" ? "admin" : "user"
+                          }`}
+                        >
+                          {user.role === "admin" ? "👑 Admin" : "👤 User"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="borrowed-count">
+                          {user.currentBurrows ?? 0}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="date-text">
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </span>
+                      </td>
+                      <td className="text-center">
+                        <div className="action-buttons">
+                          <button
+                            onClick={() => openEditUser(user)}
+                            className="edit-button"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={user._id === storedUser?._id}
+                            className={`delete-button ${
+                              user._id === storedUser?._id ? "disabled" : ""
                             }`}
                           >
-                            {user.role === "admin" ? "👑 Admin" : "👤 User"}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="borrowed-count">
-                            {user.currentBurrows ?? 0}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="date-text">
-                            {new Date(user.createdAt).toLocaleDateString()}
-                          </span>
-                        </td>
-                        <td className="text-center">
-                          <div className="action-buttons">
-                            <button
-                              onClick={() => openEditUser(user)}
-                              className="edit-button"
-                            >
-                              ✏️ Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteUser(user)}
-                              disabled={user._id === storedUser?._id}
-                              className={`delete-button ${
-                                user._id === storedUser?._id ? "disabled" : ""
-                              }`}
-                            >
-                              🗑️ Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  )}
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -597,9 +619,7 @@ useEffect(() => {
                   {/* Book cover */}
                   <div
                     className="book-cover"
-                    style={{
-                      background: `linear-gradient(135deg, ${book.coverImage}, ${book.coverImage}dd)`,
-                    }}
+                   
                   >
                     <div className="book-icon">📖</div>
                     <div
@@ -619,13 +639,13 @@ useEffect(() => {
 
                     <p className="book-author">by {book.author}</p>
 
-                    <div className="book-meta">
+                    {/* <div className="book-meta">
                       <div className="book-rating">
                         <span className="star-icon">⭐</span>
                         <span>{book.rating}</span>
                       </div>
                       <div className="book-pages">{book.pages} pages</div>
-                    </div>
+                    </div> */}
 
                     {/* Action buttons */}
                     <div className="book-actions">
@@ -820,7 +840,7 @@ useEffect(() => {
             <form onSubmit={handleAddBook}>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Title *</label>
+                  <label>Title </label>
                   <input
                     type="text"
                     value={bookForm.title}
@@ -831,7 +851,7 @@ useEffect(() => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Author *</label>
+                  <label>Author </label>
                   <input
                     type="text"
                     value={bookForm.author}
@@ -845,7 +865,7 @@ useEffect(() => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Category *</label>
+                  <label>Category </label>
                   <input
                     type="text"
                     value={bookForm.category}
@@ -894,20 +914,7 @@ useEffect(() => {
                     max={new Date().getFullYear()}
                   />
                 </div>
-                <div className="form-group">
-                  <label>Pages</label>
-                  <input
-                    type="number"
-                    value={bookForm.pages}
-                    onChange={(e) =>
-                      setBookForm({
-                        ...bookForm,
-                        pages: parseInt(e.target.value),
-                      })
-                    }
-                    min="1"
-                  />
-                </div>
+               
                 <div className="form-group">
                   <label>Total Copies</label>
                   <input
@@ -917,6 +924,7 @@ useEffect(() => {
                       setBookForm({
                         ...bookForm,
                         totalCopies: parseInt(e.target.value),
+                        availableCopies: parseInt(e.target.value), 
                       })
                     }
                     min="1"
@@ -925,16 +933,6 @@ useEffect(() => {
               </div>
 
               <div className="form-row">
-                <div className="form-group">
-                  <label>Language</label>
-                  <input
-                    type="text"
-                    value={bookForm.language}
-                    onChange={(e) =>
-                      setBookForm({ ...bookForm, language: e.target.value })
-                    }
-                  />
-                </div>
                 <div className="form-group">
                   <label>Publisher</label>
                   <input
@@ -948,14 +946,14 @@ useEffect(() => {
               </div>
 
               <div className="form-group">
-                <label>Tags (comma-separated)</label>
+                <label>Cover Image (URL) </label>
                 <input
                   type="text"
                   value={bookForm.tags}
                   onChange={(e) =>
                     setBookForm({ ...bookForm, tags: e.target.value })
                   }
-                  placeholder="fiction, mystery, thriller"
+                  placeholder="Enter the valid Cover Image Url"
                 />
               </div>
 
@@ -987,7 +985,7 @@ useEffect(() => {
 
             <form onSubmit={handleEditUser}>
               <div className="form-group">
-                <label>Full Name *</label>
+                <label>Full Name </label>
                 <input
                   type="text"
                   value={userForm.fullName}
@@ -1000,7 +998,7 @@ useEffect(() => {
               </div>
 
               <div className="form-group">
-                <label>Email *</label>
+                <label>Email </label>
                 <input
                   type="email"
                   value={userForm.email}
@@ -1018,9 +1016,9 @@ useEffect(() => {
                   onChange={(e) =>
                     setUserForm({ ...userForm, role: e.target.value })
                   }
-                  disabled={selectedUser.id === currentUser?.id}
+                  disabled={selectedUser.id === storedUser?.id}
                   className={
-                    selectedUser.id === currentUser?.id ? "disabled" : ""
+                    selectedUser.id === storedUser?.id ? "disabled" : ""
                   }
                 >
                   <option value="user">User</option>
@@ -1058,7 +1056,7 @@ useEffect(() => {
             <form onSubmit={handleEditBook}>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Title *</label>
+                  <label>Title </label>
                   <input
                     type="text"
                     value={bookForm.title}
@@ -1069,7 +1067,7 @@ useEffect(() => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Author *</label>
+                  <label>Author </label>
                   <input
                     type="text"
                     value={bookForm.author}
@@ -1083,7 +1081,7 @@ useEffect(() => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Category *</label>
+                  <label>Category </label>
                   <input
                     type="text"
                     value={bookForm.category}
@@ -1133,20 +1131,6 @@ useEffect(() => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Pages</label>
-                  <input
-                    type="number"
-                    value={bookForm.pages}
-                    onChange={(e) =>
-                      setBookForm({
-                        ...bookForm,
-                        pages: parseInt(e.target.value),
-                      })
-                    }
-                    min="1"
-                  />
-                </div>
-                <div className="form-group">
                   <label>Total Copies</label>
                   <input
                     type="number"
@@ -1164,16 +1148,6 @@ useEffect(() => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Language</label>
-                  <input
-                    type="text"
-                    value={bookForm.language}
-                    onChange={(e) =>
-                      setBookForm({ ...bookForm, language: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="form-group">
                   <label>Publisher</label>
                   <input
                     type="text"
@@ -1183,18 +1157,6 @@ useEffect(() => {
                     }
                   />
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label>Tags (comma-separated)</label>
-                <input
-                  type="text"
-                  value={bookForm.tags}
-                  onChange={(e) =>
-                    setBookForm({ ...bookForm, tags: e.target.value })
-                  }
-                  placeholder="fiction, mystery, thriller"
-                />
               </div>
 
               <div className="modal-actions">
@@ -1222,6 +1184,5 @@ useEffect(() => {
 }
 
 export default AdminDashboard;
-
 
 // backend route and controller are yet to be defined for event handling :

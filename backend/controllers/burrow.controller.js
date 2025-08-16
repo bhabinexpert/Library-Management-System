@@ -6,7 +6,7 @@ import BurrowingModel from "../models/burrowinghistory.models.js";
 // Get all burrowing history
 export const getAllBurrowings = async (req, res) => {
   try {
-    const burrowings = await BurrowingModel.find({status: "burrowed"})
+    const burrowings = await BurrowingModel.find()
       .populate("user", "fullName email")
       .populate("book", "title author category")
       .lean();

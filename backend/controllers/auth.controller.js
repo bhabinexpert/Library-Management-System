@@ -111,7 +111,10 @@ export const getAllUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { fullName, email, currentPassword, newPassword, } = req.body;
+    const { fullName, email, currentPassword, newPassword } = req.body;
+
+     // Logged-in user from protect middleware
+    const loggedInUser = req.user;
 
     // Validate required fields
     if (!fullName || !email ) {
@@ -146,11 +149,10 @@ export const updateUser = async (req, res) => {
       }
     }
 
-     // Require current password for any profile update
-    if (!currentPassword) {
-      return res.status(400).json({ 
-        message: "Current password is required to update profile"
-      });
+     // Require current password for any profile update for user but admin can directly update the user's profile
+    const isSelfUpdate = loggedInUser._id.toString() === userId;
+    if (isSelfUpdate && !currentPassword) {
+      return res.status(400).json({ message: "Current password is required to update your profile." });
     }
     
     // Handle password change if new password is provided

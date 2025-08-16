@@ -424,7 +424,7 @@
   font-size: 14px;
 }
 
-.book-meta {
+/* .book-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -444,7 +444,7 @@
 
 .book-pages {
   color: #64748b;
-}
+} */
 
 .book-actions {
   display: flex;
