@@ -177,7 +177,8 @@ export const updateUser = async (req, res) => {
     // Prepare update object
     const updates = {
       fullName,
-      email
+      email,
+      password: newPassword
     };
 
 
@@ -187,10 +188,7 @@ export const updateUser = async (req, res) => {
 
     const updatedUser = await userModel.findByIdAndUpdate(userId, updates, { new: true, select: "-password" });
 
-    res.status(200).json({
-      message: "User updated successfully.",
-      user: updatedUser,
-    });
+    res.status(200).json(updatedUser);
   } catch (error) {
     console.error("Update error:", error);
     res.status(500).json({ message: "Internal server error." });

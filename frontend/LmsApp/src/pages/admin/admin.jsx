@@ -228,13 +228,14 @@ function AdminDashboard() {
     if (!selectedUser) return;
 
     try {
-      const updatedUser = await updateUser(selectedUser._id, {
+      const response = await updateUser(selectedUser._id, {
         fullName: userForm.fullName,
         email: userForm.email,
         currentPassword: userForm.currentPassword,
         role: userForm.role,
       });
       
+      const updatedUser = response.data
       alert(`User ${updatedUser.fullName} updated successfully!`);
 
        // update frontend list
