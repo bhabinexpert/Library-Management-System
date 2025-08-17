@@ -23,7 +23,7 @@ export const updateUser = (id, data) => {
 
 export const deleteUser = (id) => {
   const token = localStorage.getItem("token");
-  return axios.delete(`${API_URL}/api/users/${id}`, {
+  return axios.delete(`${API_URL}/api/deleteusers/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

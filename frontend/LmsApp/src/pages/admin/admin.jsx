@@ -76,7 +76,6 @@ function AdminDashboard() {
     fetchOverdueBooksCount();
   }, []);
 
-  
   useEffect(() => {
     loadData();
   }, [activeTab]);
@@ -171,15 +170,11 @@ function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/"); 
+    navigate("/");
   };
-
-  
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
-
-  const [selectedUser, setSelectedUser] = useState(null);
 
   const [showAddBookModal, setShowAddBookModal] = useState(false);
   const [showEditBookModal, setShowEditBookModal] = useState(false);
@@ -202,10 +197,9 @@ function AdminDashboard() {
     publisher: "",
     publishedYear: new Date().getFullYear(),
     coverImage: "",
-    availableCopies: null ,
+    availableCopies: null,
     totalCopies: null,
   });
-
 
   const handleAddUser = async (e) => {
     e.preventDefault();
@@ -223,6 +217,8 @@ function AdminDashboard() {
     }
   };
 
+  const [selectedUser, setSelectedUser] = useState(null);
+
   const handleEditUser = async (e) => {
     e.preventDefault();
     if (!selectedUser) return;
@@ -234,21 +230,25 @@ function AdminDashboard() {
         currentPassword: userForm.currentPassword,
         role: userForm.role,
       });
-      
-      const updatedUser = response.data
+
+      const updatedUser = response.data;
       alert(`User ${updatedUser.fullName} updated successfully!`);
 
-       // update frontend list
+      // update frontend list
       setUsers((prev) =>
-      prev.map((u) => (u._id === updatedUser._id ? updatedUser : u))
-    );
+        prev.map((u) =>
+          u._id === updatedUser._id
+            ? { ...u, ...updatedUser } // keep borrowedBooksCount and merge changes
+            : u
+        )
+      );
       resetUserForm();
       setSelectedUser(null);
       setShowEditUserModal(false);
       loadData();
     } catch (err) {
       alert("Error updating user.");
-      console.log(err)
+      console.log(err);
     }
   };
 
@@ -275,19 +275,21 @@ function AdminDashboard() {
     e.preventDefault();
 
     // validate cover image url
-  if (!bookForm.coverImage || !/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(bookForm.coverImage)) {
-    alert("Please provide a valid cover image URL.");
-    return;
-  }
+    if (
+      !bookForm.coverImage ||
+      !/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(bookForm.coverImage)
+    ) {
+      alert("Please provide a valid cover image URL.");
+      return;
+    }
     try {
       const newBook = await addBook({
         ...bookForm,
         availableCopies: bookForm.totalCopies,
-        
       });
       alert(`Book "${newBook.title}" added successfully!`);
 
-       // update frontend list
+      // update frontend list
       setBooks((prev) => [...prev, newBook]);
       resetBookForm();
       setShowAddBookModal(false);
@@ -317,10 +319,9 @@ function AdminDashboard() {
       alert(`Book "${updatedBook.title}" updated successfully!`);
 
       // update frontend list
-    setBooks((prev) =>
-      prev.map((b) => (b._id === updatedBook._id ? updatedBook : b))
-    );
-
+      setBooks((prev) =>
+        prev.map((b) => (b._id === updatedBook._id ? updatedBook : b))
+      );
 
       resetBookForm();
       setSelectedBook(null);
@@ -342,8 +343,8 @@ function AdminDashboard() {
         alert(`Book "${book.title}" deleted successfully.`);
 
         // update frontend
-      setBooks((prev) => prev.filter((b) => b._id !== book._id));
-      
+        setBooks((prev) => prev.filter((b) => b._id !== book._id));
+
         loadData();
       } catch (err) {
         alert("Error deleting book.");
@@ -618,10 +619,7 @@ function AdminDashboard() {
               {books.map((book) => (
                 <div key={book.id} className="book-card">
                   {/* Book cover */}
-                  <div
-                    className="book-cover"
-                   
-                  >
+                  <div className="book-cover">
                     <div className="book-icon">📖</div>
                     <div
                       className={`availability-badge ${
@@ -915,7 +913,7 @@ function AdminDashboard() {
                     max={new Date().getFullYear()}
                   />
                 </div>
-               
+
                 <div className="form-group">
                   <label>Total Copies</label>
                   <input
@@ -925,7 +923,7 @@ function AdminDashboard() {
                       setBookForm({
                         ...bookForm,
                         totalCopies: parseInt(e.target.value),
-                        availableCopies: parseInt(e.target.value), 
+                        availableCopies: parseInt(e.target.value),
                       })
                     }
                     min="1"

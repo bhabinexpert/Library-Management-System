@@ -92,7 +92,7 @@ app.get("/api/stats/overdue/count", getOverdueBooksCount);
 //updates user
 app.get("/api/users/me", protect, getCurrentUser);
 app.put("/api/users/:id", protect, updateUser);
-app.put("/api/deleteusers/:id", protect, deleteUser);
+app.delete("/api/deleteusers/:id", protect, deleteUser);
 
 // hard coded the books details into db..
 
