@@ -576,10 +576,13 @@ function UserDashboard() {
                     <div
                       className="book-cover"
                       style={{
-                        background: `linear-gradient(135deg, ${book.coverImage}, ${book.coverImage}dd)`,
-                      }}
+    backgroundImage: book.coverImage? `url(${book.coverImage})` : "none",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    borderRadius: "8px",
+  }}
                     >
-                      <div className="book-icon">📖</div>
+                      {!book.coverImage && <div className="book-icon">📖</div>}
 
                       {/* Availability badge */}
                       <div className={`availability-badge ${book.availableCopies > 0 ? "available" : "unavailable"}`}>

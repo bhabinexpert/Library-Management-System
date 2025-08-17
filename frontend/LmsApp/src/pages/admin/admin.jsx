@@ -316,7 +316,7 @@ function AdminDashboard() {
         description: bookForm.description,
         publisher: bookForm.publisher,
         publishedYear: bookForm.publishedYear,
-        // coverImage: bookForm.coverImage,
+        coverImage: bookForm.coverImage,
         totalCopies: bookForm.totalCopies,
         availableCopies: bookForm.availableCopies,
       });
@@ -623,8 +623,14 @@ function AdminDashboard() {
               {books.map((book) => (
                 <div key={book.id} className="book-card">
                   {/* Book cover */}
-                  <div className="book-cover">
-                    <div className="book-icon">📖</div>
+                  <div className="book-cover"
+                   style={{
+    backgroundImage: book.coverImage? `url(${book.coverImage})` : "none",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    borderRadius: "8px",
+  }}>
+                    {!book.coverImage && <div className="book-icon">📖</div>}
                     <div
                       className={`availability-badge ${
                         book.availableCopies > 0 ? "available" : "unavailable"
@@ -1117,6 +1123,18 @@ function AdminDashboard() {
                 />
               </div>
 
+              <div className="form-group">
+                <label>Cover Image (URL) </label>
+                <input
+                  type="text"
+                  value={bookForm.coverImage}
+                  onChange={(e) =>
+                    setBookForm({ ...bookForm, coverImage: e.target.value })
+                  }
+                  placeholder="Enter the valid Cover Image Url"
+                />
+              </div>
+
               <div className="form-row">
                 <div className="form-group">
                   <label>Published Year</label>
@@ -1188,4 +1206,4 @@ function AdminDashboard() {
 
 export default AdminDashboard;
 
-// backend route and controller are yet to be defined for event handling :
+
