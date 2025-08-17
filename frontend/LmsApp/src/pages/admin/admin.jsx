@@ -173,20 +173,14 @@ function AdminDashboard() {
     navigate("/");
   };
 
-  const [showAddUserModal, setShowAddUserModal] = useState(false);
-  const [showEditUserModal, setShowEditUserModal] = useState(false);
 
+  
   const [showAddBookModal, setShowAddBookModal] = useState(false);
   const [showEditBookModal, setShowEditBookModal] = useState(false);
 
   const [selectedBook, setSelectedBook] = useState(null);
 
-  const [userForm, setUserForm] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    role: "user",
-  });
+ 
 
   const [bookForm, setBookForm] = useState({
     title: "",
@@ -201,10 +195,20 @@ function AdminDashboard() {
     totalCopies: null,
   });
 
+   const [userForm, setUserForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    role: "user",
+  });
+
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+
   const handleAddUser = async (e) => {
     e.preventDefault();
     try {
-      const newUser = await registerUser(userForm);
+      const response = await registerUser(userForm);
+      const newUser = response.data.user;
       alert(`User ${newUser.fullName} added successfully!`);
 
       // update frontend list without full reload
@@ -218,6 +222,9 @@ function AdminDashboard() {
   };
 
   const [selectedUser, setSelectedUser] = useState(null);
+
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+
 
   const handleEditUser = async (e) => {
     e.preventDefault();
@@ -761,7 +768,7 @@ function AdminDashboard() {
 
             <form onSubmit={handleAddUser}>
               <div className="form-group">
-                <label>Full Name *</label>
+                <label>Full Name </label>
                 <input
                   type="text"
                   value={userForm.fullName}
@@ -774,7 +781,7 @@ function AdminDashboard() {
               </div>
 
               <div className="form-group">
-                <label>Email *</label>
+                <label>Email </label>
                 <input
                   type="email"
                   value={userForm.email}
@@ -786,7 +793,7 @@ function AdminDashboard() {
               </div>
 
               <div className="form-group">
-                <label>Password *</label>
+                <label>Password </label>
                 <input
                   type="password"
                   value={userForm.password}

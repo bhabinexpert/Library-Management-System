@@ -43,9 +43,10 @@ export const registerUser = async (req, res) => {
       token,
       user: {
         _id: newUser._id,
-        name: newUser.fullName,
+        fullName: newUser.fullName,
         email: newUser.email,
-        role: newUser.role
+        role: newUser.role,
+        createdAt: newUser.createdAt,
       },
     });
   } catch (error) {
