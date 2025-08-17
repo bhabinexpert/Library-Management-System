@@ -11,8 +11,8 @@ const bookSchema = new Schema(
     publisher: { type: String, required: true },
     publishedYear: { type: Number, required: true },
     coverImage: { type: String, required: true }, // URL publicly available
-    availableCopies: { type: Number, required: true},
-    totalCopies: { type: Number, required: true, default: 5 },
+    availableCopies: { type: Number, required: true, default: 10},
+    totalCopies: { type: Number, required: true, default: 10 },
   },
   { timestamps: true }
 );

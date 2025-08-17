@@ -281,11 +281,8 @@ function AdminDashboard() {
   const handleAddBook = async (e) => {
     e.preventDefault();
 
-    // validate cover image url
-    if (
-      !bookForm.coverImage ||
-      !/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(bookForm.coverImage)
-    ) {
+    // check cover image url
+    if (!bookForm.coverImage  ) {
       alert("Please provide a valid cover image URL.");
       return;
     }
@@ -294,7 +291,7 @@ function AdminDashboard() {
         ...bookForm,
         availableCopies: bookForm.totalCopies,
       });
-      alert(`Book "${newBook.title}" added successfully!`);
+      alert(`Book "${selectedBook.title}" added successfully!`);
 
       // update frontend list
       setBooks((prev) => [...prev, newBook]);
@@ -957,7 +954,7 @@ function AdminDashboard() {
                   type="text"
                   value={bookForm.tags}
                   onChange={(e) =>
-                    setBookForm({ ...bookForm, tags: e.target.value })
+                    setBookForm({ ...bookForm, coverImage: e.target.value })
                   }
                   placeholder="Enter the valid Cover Image Url"
                 />
