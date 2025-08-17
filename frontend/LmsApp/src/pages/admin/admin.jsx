@@ -323,7 +323,7 @@ function AdminDashboard() {
         totalCopies: bookForm.totalCopies,
         availableCopies: bookForm.availableCopies,
       });
-      alert(`Book "${updatedBook.title}" updated successfully!`);
+      alert(`Book "${selectedBook.title}" updated successfully!`);
 
       // update frontend list
       setBooks((prev) =>
