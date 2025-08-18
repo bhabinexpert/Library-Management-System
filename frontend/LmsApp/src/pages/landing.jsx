@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Contact from "./contact.jsx";
 import DeveloperInfo from "./dev-info.jsx";
 
 
 function LandingPage() {
+  const navigate = new useNavigate();
   return (
     <>
       <section className="landing">
@@ -11,9 +12,10 @@ function LandingPage() {
           <div className="logo">
             <img src="logo.png" />
             <a href="#" className="name">
-              GyanKosh{" "}
+              GyanKosh
             </a>
           </div>
+          
           <div className="nav-links">
             <a href="#explore" className="nav">
               Explore
@@ -27,6 +29,8 @@ function LandingPage() {
             <a href="#dev-info" className="nav">
               Meet the Developer
             </a>
+            <button className="getstarted-btn" on onClick={()=>navigate("/signup")}>Get Started</button>
+            <button className="nav-login-btn" onClick={()=> navigate("/login")}> Log In</button>
           </div>
         </div>
 
@@ -66,7 +70,7 @@ function LandingPage() {
                 flexWrap: "wrap",
               }}
             >
-              <Link to="/login" className="borrowbtn">
+              <Link to="/login" className="burrowbtn">
                 🚀 Start Borrowing Free
               </Link>
 

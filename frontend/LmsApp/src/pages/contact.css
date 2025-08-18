@@ -1,7 +1,7 @@
 .contactTop{
    
     /* margin-bottom: 2rem; */
-    height: 20rem;
+    height: 18rem;
 
 }
 .head{
@@ -13,13 +13,14 @@
 }
 
 .head1{
-    color: blue;
+    color: rgb(23, 41, 54);
 }
 
 .head h1{
     font-size: 38px;
     font-weight: bold;
-    margin: 2rem 0 2rem 0;
+    /* margin: 2rem 0 2rem 0; */
+    padding: 10px;
 }
 
 .first , .second{
@@ -28,6 +29,8 @@
     margin-bottom: 1rem;
     font-weight: 500px;
 }
+
+
 .contactLogo {
   width: 80px;                /* Size of circular box */
   height: 80px;
@@ -36,9 +39,9 @@
   display: flex;              /* Center the emoji */
   align-items: center;
   justify-content: center;
-  font-size: 40px;            /* Make the emoji larger */
-  margin: auto;   
-  margin-bottom: 2rem;            /* Center horizontally */
+  font-size: 40px;   
+  margin: auto;         /* Make the emoji larger */
+  /* margin-bottom: 0.5rem;             */
 }
 
 .helpText{
