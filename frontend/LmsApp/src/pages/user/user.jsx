@@ -57,6 +57,7 @@ function UserDashboard() {
         setIsLoading(true);
         const user = JSON.parse(storedUser);
         setCurrentUser(user);
+        userIdRef.current = user._id; // Set userIdRef immediately
         
         // Fetch updated user data
         const userResponse = await axios.get(
@@ -71,10 +72,11 @@ function UserDashboard() {
         
         const updatedUser = userResponse.data;
         setCurrentUser(updatedUser);
+        userIdRef.current = updatedUser._id; // Update userIdRef with fresh data
         localStorage.setItem("user", JSON.stringify(updatedUser));
         
-        // Load all data
-        await loadData();
+        // Load all data with the correct user ID
+        await loadData(updatedUser._id);
         
         // Fetch book count
         const countResponse = await axios.get(
@@ -123,10 +125,13 @@ function UserDashboard() {
   };
 
   // Load books and borrowing data
-  const loadData = async () => {
+  const loadData = async (userId = null) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
+
+      const targetUserId = userId || userIdRef.current;
+      if (!targetUserId) return;
 
       // Fetch books
       const booksResponse = await axios.get("http://localhost:9000/api/books", {
@@ -150,24 +155,22 @@ function UserDashboard() {
       setFilteredBooks(booksData);
 
       // Fetch borrowed books
-      if (userIdRef.current) {
-        setIsBurrowedLoading(true);
-        const burrowedResponse = await axios.get(
-          `http://localhost:9000/api/books/burrowstatus/${userIdRef.current}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+      setIsBurrowedLoading(true);
+      const burrowedResponse = await axios.get(
+        `http://localhost:9000/api/books/burrowstatus/${targetUserId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-         // Ensure data is an array
-    const records = Array.isArray(burrowedResponse.data) ? burrowedResponse.data : [];
+      // Ensure data is an array
+      const records = Array.isArray(burrowedResponse.data) ? burrowedResponse.data : [];
 
-        const burrowed = records.filter(
-          record => record.status === "burrowed" || record.status === "borrowed"
-        );
+      const burrowed = records.filter(
+        record => record.status === "burrowed" || record.status === "borrowed"
+      );
 
-        setBurrowedBooks(burrowed);
-        setBurrowed(burrowedResponse.data);
-        setIsBurrowedLoading(false);
-      }
+      setBurrowedBooks(burrowed);
+      setBurrowed(burrowedResponse.data);
+      setIsBurrowedLoading(false);
     } catch (error) {
       console.error("Error loading data:", error);
       setIsBurrowedLoading(false);

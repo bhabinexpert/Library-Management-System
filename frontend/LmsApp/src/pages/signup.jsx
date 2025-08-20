@@ -35,7 +35,7 @@ export   function Signup(){
         });
         
         localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", response.data.fullName)
+        localStorage.setItem("user", JSON.stringify(response.data.user));
         alert("Signup Sucessfully!")
         navigate("/user/home")
         
