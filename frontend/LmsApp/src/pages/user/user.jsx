@@ -738,7 +738,7 @@ function UserDashboard() {
                   <div className="spinner"></div>
                   <p>Loading your history...</p>
                 </div>
-              ) : burrowed.filter(record => record.status === "returned").length > 0 ? (
+              ) : burrowed.length > 0 ? (
                 <table className="history-table">
                   <thead>
                     <tr>
@@ -752,17 +752,20 @@ function UserDashboard() {
                   </thead>
                   <tbody>
                     {burrowed
-                      .filter(record => record.status === "returned")
-                      .sort((a, b) => new Date(b.returnDate) - new Date(a.returnDate))
+                      .sort((a, b) => new Date(b.burrowDate || b.borrowDate) - new Date(a.burrowDate || a.borrowDate))
                       .map(record => (
                         <tr key={record._id}>
                           <td className="history-book-title">{record.book.title}</td>
                           <td className="history-book-author">{record.book.author}</td>
                           <td>{record.book.category}</td>
-                          <td className="history-date">{new Date(record.burrowDate).toLocaleDateString()}</td>
-                          <td className="history-date">{new Date(record.returnDate).toLocaleDateString()}</td>
+                          <td className="history-date">{new Date(record.burrowDate || record.borrowDate).toLocaleDateString()}</td>
+                          <td className="history-date">
+                            {record.returnDate ? new Date(record.returnDate).toLocaleDateString() : '—'}
+                          </td>
                           <td className="status-cell">
-                            <span className="returned-badge">Returned</span>
+                            <span className={`status-badge ${record.status === 'returned' ? 'returned-badge' : 'burrowed-badge'}`}>
+                              {record.status === 'returned' ? 'Returned' : 'Burrowed'}
+                            </span>
                           </td>
                         </tr>
                       ))}
@@ -772,7 +775,7 @@ function UserDashboard() {
                 <div className="empty-state">
                   <div className="empty-icon">📚</div>
                   <h3>No reading history</h3>
-                  <p>Books you return will appear here.</p>
+                  <p>Books you burrow and return will appear here.</p>
                   <button
                     onClick={() => setActiveTab("explore")}
                     className="explore-button"
