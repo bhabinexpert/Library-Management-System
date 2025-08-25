@@ -136,7 +136,7 @@ function LandingPage() {
                 <div className="emoji">⚡</div>
                 <h3>Instant Borrowing</h3>
                 <p>
-                  No waiting in lines! Borrow books instantly and start reading
+                  No waiting in lines! Burrow books instantly and start reading
                   within seconds.
                 </p>
               </div>
@@ -179,10 +179,10 @@ function LandingPage() {
           <DeveloperInfo />
 
         </div>
-        <div className="redirect"></div>
+        {/* <div className="redirect"></div>
         <div className="details"></div>
         <div className="featured-books"></div>
-        <div className="buttom-information"></div>
+        <div className="buttom-information"></div> */}
       </section>
     </>
   );
