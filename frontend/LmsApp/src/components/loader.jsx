@@ -72,27 +72,7 @@ const LoadingSpinner = () => {
         Loading your dashboard...
       </p>
       
-      {/* Embedded animations */}
-      <style>
-        {`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes spinReverse {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(-360deg); }
-        }
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.05); opacity: 0.7; }
-        }
-        @keyframes textPulse {
-          0%, 100% { opacity: 1; transform: translateY(0); }
-          50% { opacity: 0.6; transform: translateY(3px); }
-        }
-        `}
-      </style>
+     
     </div>
   );
 };
