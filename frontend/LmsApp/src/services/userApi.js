@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:9000"; //  backend URL
+const API_URL = "https://library-management-system-gzjz.onrender.com"; //  backend URL
 
 // USERS
 export const registerUser = (data) => {

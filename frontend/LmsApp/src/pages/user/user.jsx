@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import "./user.css";
 import axios from "axios";
 import LoadingSpinner from "../../components/loader";
@@ -32,8 +32,6 @@ function UserDashboard() {
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  
-
   // Create ref for current user ID
   const userIdRef = useRef(null);
 
@@ -47,55 +45,54 @@ function UserDashboard() {
     const initializeDashboard = async () => {
       const storedUser = localStorage.getItem("user");
       const token = localStorage.getItem("token");
-      
+
       if (!storedUser || !token) {
-        window.location.href = '/login';
+        window.location.href = "/login";
         return;
       }
-      
+
       try {
         setIsLoading(true);
         const user = JSON.parse(storedUser);
         setCurrentUser(user);
         userIdRef.current = user._id; // Set userIdRef immediately
-        
+
         // Fetch updated user data
         const userResponse = await axios.get(
-          "http://localhost:9000/api/users/me",
+          "https://library-management-system-gzjz.onrender.com/api/users/me",
           {
-            headers: { 
+            headers: {
               Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+              "Content-Type": "application/json",
+            },
           }
         );
-        
+
         const updatedUser = userResponse.data;
         setCurrentUser(updatedUser);
         userIdRef.current = updatedUser._id; // Update userIdRef with fresh data
         localStorage.setItem("user", JSON.stringify(updatedUser));
-        
+
         // Load all data with the correct user ID
         await loadData(updatedUser._id);
-        
+
         // Fetch book count
         const countResponse = await axios.get(
-          "http://localhost:9000/api/books/count",
+          "https://library-management-system-gzjz.onrender.com/api/books/count",
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+              "Content-Type": "application/json",
+            },
           }
         );
         setCount(countResponse.data.totalBooks);
-        
       } catch (error) {
         console.error("Initialization error:", error);
         if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "/login";
         }
       } finally {
         setIsLoading(false);
@@ -109,7 +106,7 @@ function UserDashboard() {
   useEffect(() => {
     if (currentUser) {
       setProfileForm({
-        fullName: currentUser.fullName || '',
+        fullName: currentUser.fullName || "",
         email: currentUser.email || "",
         currentPassword: "",
         newPassword: "",
@@ -134,38 +131,43 @@ function UserDashboard() {
       if (!targetUserId) return;
 
       // Fetch books
-      const booksResponse = await axios.get("http://localhost:9000/api/books", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const booksResponse = await axios.get(
+        "https://library-management-system-gzjz.onrender.com/api/books",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       const booksData = booksResponse.data;
-      
+
       // Generate random ratings for books
       const newRatings = {};
-      booksData.forEach(book => {
+      booksData.forEach((book) => {
         if (!bookRatings[book._id]) {
           newRatings[book._id] = (Math.random() * 6.9 + 3).toFixed(1);
         }
       });
-      
-      setBookRatings(prev => ({ ...prev, ...newRatings }));
+
+      setBookRatings((prev) => ({ ...prev, ...newRatings }));
       setBooks(booksData);
       setFilteredBooks(booksData);
 
       // Fetch borrowed books
       setIsBurrowedLoading(true);
       const burrowedResponse = await axios.get(
-        `http://localhost:9000/api/books/burrowstatus/${targetUserId}`,
+        `https://library-management-system-gzjz.onrender.com/api/books/burrowstatus/${targetUserId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       // Ensure data is an array
-      const records = Array.isArray(burrowedResponse.data) ? burrowedResponse.data : [];
+      const records = Array.isArray(burrowedResponse.data)
+        ? burrowedResponse.data
+        : [];
 
       const burrowed = records.filter(
-        record => record.status === "burrowed" || record.status === "borrowed"
+        (record) => record.status === "burrowed" || record.status === "borrowed"
       );
 
       setBurrowedBooks(burrowed);
@@ -184,15 +186,15 @@ function UserDashboard() {
 
     if (searchTerm) {
       filtered = filtered.filter(
-        book => 
+        (book) =>
           book.title.toLowerCase().includes(searchTermLower) ||
           book.author.toLowerCase().includes(searchTermLower) ||
           book.category.toLowerCase().includes(searchTermLower)
       );
     }
 
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter(book => book.category === selectedCategory);
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter((book) => book.category === selectedCategory);
     }
 
     setFilteredBooks(filtered);
@@ -202,11 +204,11 @@ function UserDashboard() {
   const getTimeRemaining = (dueDate) => {
     const now = new Date();
     const due = new Date(dueDate);
-    
+
     if (now > due) {
       return { expired: true, text: "Overdue", color: "#ef4444" };
     }
-    
+
     const timeDiff = due - now;
     const days = parseInt(timeDiff / (1000 * 60 * 60 * 24));
     const hours = parseInt((timeDiff / (1000 * 60 * 60)) % 24);
@@ -261,13 +263,13 @@ function UserDashboard() {
       if (!token) {
         setProfileError("Please login again to update your profile");
         setIsUpdatingProfile(false);
-        window.location.href = '/login';
+        window.location.href = "/login";
         return;
       }
 
       // Send update request
       const response = await axios.put(
-        `http://localhost:9000/api/users/${currentUser._id}`,
+        `https://library-management-system-gzjz.onrender.com/api/users/${currentUser._id}`,
         {
           fullName: profileForm.fullName,
           email: profileForm.email,
@@ -275,9 +277,9 @@ function UserDashboard() {
           newPassword: profileForm.newPassword || undefined,
         },
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
         }
       );
@@ -299,12 +301,13 @@ function UserDashboard() {
       console.error("Profile update error:", err);
       if (err.response?.status === 401) {
         setProfileError("Session expired. Please login again.");
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
       } else {
         setProfileError(
-          err.response?.data?.message || "Failed to update profile. Please try again."
+          err.response?.data?.message ||
+            "Failed to update profile. Please try again."
         );
       }
     } finally {
@@ -317,7 +320,7 @@ function UserDashboard() {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Please login again to return books");
-      window.location.href = '/login';
+      window.location.href = "/login";
       return;
     }
 
@@ -325,8 +328,8 @@ function UserDashboard() {
 
     try {
       // Optimistically update UI
-      setFilteredBooks(prevBooks => 
-        prevBooks.map(book => 
+      setFilteredBooks((prevBooks) =>
+        prevBooks.map((book) =>
           book._id === burrowRecord.book._id
             ? { ...book, availableCopies: book.availableCopies + 1 }
             : book
@@ -334,24 +337,23 @@ function UserDashboard() {
       );
 
       await axios.put(
-        `http://localhost:9000/api/books/return/${burrowRecord._id}`,
+        `https://library-management-system-gzjz.onrender.com/api/books/return/${burrowRecord._id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       alert(`Successfully returned "${burrowRecord.book.title}"!`);
-      
+
       // Refresh data
       await loadData();
-      
     } catch (error) {
       console.error("Error returning book:", error);
       alert(
-        error.response?.data?.message || 
-        "Error returning book. Please try again!!"
+        error.response?.data?.message ||
+          "Error returning book. Please try again!!"
       );
       await loadData();
-    } 
+    }
   };
 
   // Handle book selection for details view
@@ -363,8 +365,9 @@ function UserDashboard() {
   // Check if book is already borrowed
   const isAlreadyBorrowed = (bookId) => {
     return burrowedBooks.some(
-      record => (record.book?._id === bookId || record.book === bookId) && 
-      record.status === "burrowed"
+      (record) =>
+        (record.book?._id === bookId || record.book === bookId) &&
+        record.status === "burrowed"
     );
   };
 
@@ -372,20 +375,20 @@ function UserDashboard() {
   const handlePrepareBurrow = (book) => {
     if (!currentUser) {
       alert("Please login to borrow books");
-      window.location.href = '/login';
+      window.location.href = "/login";
       return;
     }
-    
+
     if (isAlreadyBorrowed(book._id)) {
       alert("You have already borrowed this book");
       return;
     }
-    
+
     if (book.availableCopies <= 0) {
       alert("Sorry, this book is currently unavailable");
       return;
     }
-    
+
     setBurrowingBook(book);
     setShowBorrowConfirm(true);
   };
@@ -394,7 +397,7 @@ function UserDashboard() {
   const handleBurrowBook = async () => {
     if (!burrowingBook || !currentUser) {
       alert("Please login to borrow books");
-      window.location.href = '/login';
+      window.location.href = "/login";
       return;
     }
 
@@ -402,20 +405,20 @@ function UserDashboard() {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Please login to borrow books");
-      window.location.href = '/login';
+      window.location.href = "/login";
       return;
     }
 
     try {
       // Check if already borrowed
       const statusResponse = await axios.get(
-        `http://localhost:9000/api/books/burrowstatus/${currentUser._id}`,
+        `https://library-management-system-gzjz.onrender.com/api/books/burrowstatus/${currentUser._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const alreadyBurrowed = statusResponse.data.some(
-        record => record.book._id === burrowingBook._id &&
-                  record.status === "burrowed"
+        (record) =>
+          record.book._id === burrowingBook._id && record.status === "burrowed"
       );
 
       if (alreadyBurrowed) {
@@ -426,74 +429,78 @@ function UserDashboard() {
 
       // Borrow book
       await axios.put(
-        `http://localhost:9000/api/books/burrow/${burrowingBook._id}`,
+        `https://library-management-system-gzjz.onrender.com/api/books/burrow/${burrowingBook._id}`,
         {
           user: currentUser._id,
           book: burrowingBook._id,
         },
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       alert(`Successfully borrowed "${burrowingBook.title}"!`);
-      
+
       // Close modals
       setBurrowingBook(null);
       setShowBookModal(false);
-      
+
       // Refresh data
       await loadData();
-      
+
       // Optimistic UI update
-      setFilteredBooks(prevBooks =>
-        prevBooks.map(book =>
+      setFilteredBooks((prevBooks) =>
+        prevBooks.map((book) =>
           book._id === burrowingBook._id
             ? { ...book, availableCopies: book.availableCopies - 1 }
             : book
         )
       );
-      
     } catch (error) {
       console.error("Error borrowing book:", error);
-      const message = error.response?.data?.message || "Unable to borrow book. Please try again.";
+      const message =
+        error.response?.data?.message ||
+        "Unable to borrow book. Please try again.";
       alert(message);
     }
-    
   };
 
   // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
   };
 
   // Loading state
   if (isLoading) {
-    return (
-      <LoadingSpinner/>
-    )
+    return <LoadingSpinner />;
   }
   return (
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
         <div className="usertop">
-          <img src="/logo.png" 
-          style={{ 
-              height: '90px', 
-              marginRight: '15px',
-              width:'90px',
-              marginTop: '0px' 
-            }}/>
+          <img
+            src="/logo.png"
+            style={{
+              height: "90px",
+              marginRight: "15px",
+              width: "90px",
+              marginTop: "0px",
+            }}
+          />
 
           <h1 className="dashboard-title">📚 GyanKosh!</h1>
         </div>
         <div>
           <h3 className="dashboard-welcome">
-            Welcome back, {currentUser?.fullName ? currentUser.fullName.split(" ")[0] : "User"}!
+            Welcome back,{" "}
+            {currentUser?.fullName
+              ? currentUser.fullName.split(" ")[0]
+              : "User"}
+            !
           </h3>
         </div>
-           
+
         <div className="header-actions">
           <button
             onClick={() => setShowProfileModal(true)}
@@ -579,16 +586,22 @@ function UserDashboard() {
                     <div
                       className="book-cover"
                       style={{
-    backgroundImage: book.coverImage? `url(${book.coverImage})` : "none",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    borderRadius: "8px",
-  }}
+                        backgroundImage: book.coverImage
+                          ? `url(${book.coverImage})`
+                          : "none",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        borderRadius: "8px",
+                      }}
                     >
                       {!book.coverImage && <div className="book-icon">📖</div>}
 
                       {/* Availability badge */}
-                      <div className={`availability-badge ${book.availableCopies > 0 ? "available" : "unavailable"}`}>
+                      <div
+                        className={`availability-badge ${
+                          book.availableCopies > 0 ? "available" : "unavailable"
+                        }`}
+                      >
                         {book.availableCopies > 0 ? "Available" : "Unavailable"}
                       </div>
 
@@ -686,14 +699,24 @@ function UserDashboard() {
 
                           <div className="borrowed-meta">
                             <div className="borrowed-date">
-                              Burrowed: {new Date(burrowRecord.borrowDate).toLocaleDateString()}
+                              Burrowed:{" "}
+                              {new Date(
+                                burrowRecord.borrowDate
+                              ).toLocaleDateString()}
                             </div>
                             <div className="borrowed-date">
-                              Due: {new Date(burrowRecord.dueDate).toLocaleDateString()}
+                              Due:{" "}
+                              {new Date(
+                                burrowRecord.dueDate
+                              ).toLocaleDateString()}
                             </div>
                             <div className="borrowed-status">
                               <span>Status:</span>
-                              <span className={`status-badge ${timeRemaining.expired ? "expired" : ""}`}>
+                              <span
+                                className={`status-badge ${
+                                  timeRemaining.expired ? "expired" : ""
+                                }`}
+                              >
                                 {timeRemaining.text}
                               </span>
                             </div>
@@ -731,7 +754,7 @@ function UserDashboard() {
         {activeTab === "history" && (
           <div className="history-tab">
             <h2 className="section-title">Reading History</h2>
-            
+
             <div className="history-table-container">
               {isBurrowedLoading ? (
                 <div className="loading-section">
@@ -752,19 +775,41 @@ function UserDashboard() {
                   </thead>
                   <tbody>
                     {burrowed
-                      .sort((a, b) => new Date(b.burrowDate || b.borrowDate) - new Date(a.burrowDate || a.borrowDate))
-                      .map(record => (
+                      .sort(
+                        (a, b) =>
+                          new Date(b.burrowDate || b.borrowDate) -
+                          new Date(a.burrowDate || a.borrowDate)
+                      )
+                      .map((record) => (
                         <tr key={record._id}>
-                          <td className="history-book-title">{record.book.title}</td>
-                          <td className="history-book-author">{record.book.author}</td>
+                          <td className="history-book-title">
+                            {record.book.title}
+                          </td>
+                          <td className="history-book-author">
+                            {record.book.author}
+                          </td>
                           <td>{record.book.category}</td>
-                          <td className="history-date">{new Date(record.burrowDate || record.borrowDate).toLocaleDateString()}</td>
                           <td className="history-date">
-                            {record.returnDate ? new Date(record.returnDate).toLocaleDateString() : '—'}
+                            {new Date(
+                              record.burrowDate || record.borrowDate
+                            ).toLocaleDateString()}
+                          </td>
+                          <td className="history-date">
+                            {record.returnDate
+                              ? new Date(record.returnDate).toLocaleDateString()
+                              : "—"}
                           </td>
                           <td className="status-cell">
-                            <span className={`status-badge ${record.status === 'returned' ? 'returned-badge' : 'burrowed-badge'}`}>
-                              {record.status === 'returned' ? 'Returned' : 'Burrowed'}
+                            <span
+                              className={`status-badge ${
+                                record.status === "returned"
+                                  ? "returned-badge"
+                                  : "burrowed-badge"
+                              }`}
+                            >
+                              {record.status === "returned"
+                                ? "Returned"
+                                : "Burrowed"}
                             </span>
                           </td>
                         </tr>
@@ -819,7 +864,9 @@ function UserDashboard() {
                   <div className="stat-label">Published</div>
                 </div>
                 <div className="stat-item">
-                  <div className="stat-value">{selectedBook.availableCopies}</div>
+                  <div className="stat-value">
+                    {selectedBook.availableCopies}
+                  </div>
                   <div className="stat-label">Available Copies</div>
                 </div>
               </div>
@@ -832,12 +879,14 @@ function UserDashboard() {
               <div className="modal-section">
                 <h3 className="section-heading">Details : ⬇️</h3>
                 <div className="details-list">
-                  <p><strong>Publisher:</strong> {selectedBook.publisher}</p>
-                  <p><strong>ISBN:</strong> {selectedBook.isbn}</p>
+                  <p>
+                    <strong>Publisher:</strong> {selectedBook.publisher}
+                  </p>
+                  <p>
+                    <strong>ISBN:</strong> {selectedBook.isbn}
+                  </p>
                 </div>
               </div>
-
-              
 
               <div className="modal-actions">
                 <button
@@ -856,8 +905,10 @@ function UserDashboard() {
                     isAlreadyBorrowed(selectedBook._id)
                   }
                   className={`primary-button ${
-                    (selectedBook.availableCopies === 0 || 
-                    isAlreadyBorrowed(selectedBook._id)) ? "disabled" : ""
+                    selectedBook.availableCopies === 0 ||
+                    isAlreadyBorrowed(selectedBook._id)
+                      ? "disabled"
+                      : ""
                   }`}
                 >
                   {selectedBook.availableCopies === 0 && !isAlreadyBorrowed
@@ -878,13 +929,24 @@ function UserDashboard() {
           <div className="confirm-modal">
             <h3 className="modal-title">Confirm Borrowing</h3>
             <p className="modal-text">
-              Are you sure you want to borrow "<strong>{burrowingBook.title}</strong>" by {burrowingBook.author}?
+              Are you sure you want to borrow "
+              <strong>{burrowingBook.title}</strong>" by {burrowingBook.author}?
             </p>
 
             <div className="loan-info">
-              <p><strong>Loan Period:</strong> 15 days</p>
-              <p><strong>Due Date:</strong> {new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString()}</p>
-              <p><strong>Available Copies:</strong> {burrowingBook.availableCopies}</p>
+              <p>
+                <strong>Loan Period:</strong> 15 days
+              </p>
+              <p>
+                <strong>Due Date:</strong>{" "}
+                {new Date(
+                  Date.now() + 15 * 24 * 60 * 60 * 1000
+                ).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Available Copies:</strong>{" "}
+                {burrowingBook.availableCopies}
+              </p>
             </div>
 
             <div className="modal-actions">
@@ -908,7 +970,9 @@ function UserDashboard() {
           <div className="profile-modal">
             <h3 className="modal-title">Update Profile</h3>
 
-            {profileError && <div className="error-message">{profileError}</div>}
+            {profileError && (
+              <div className="error-message">{profileError}</div>
+            )}
 
             <form onSubmit={handleUpdateProfile}>
               <div className="form-group">
@@ -916,7 +980,9 @@ function UserDashboard() {
                 <input
                   type="text"
                   value={profileForm.fullName}
-                  onChange={(e) => setProfileForm({...profileForm, fullName: e.target.value})}
+                  onChange={(e) =>
+                    setProfileForm({ ...profileForm, fullName: e.target.value })
+                  }
                   required
                   placeholder="John Doe"
                   className="form-input"
@@ -941,7 +1007,12 @@ function UserDashboard() {
                   <input
                     type="password"
                     value={profileForm.currentPassword}
-                    onChange={(e) => setProfileForm({...profileForm, currentPassword: e.target.value})}
+                    onChange={(e) =>
+                      setProfileForm({
+                        ...profileForm,
+                        currentPassword: e.target.value,
+                      })
+                    }
                     className="form-input"
                   />
                 </div>
@@ -952,7 +1023,12 @@ function UserDashboard() {
                     <input
                       type="password"
                       value={profileForm.newPassword}
-                      onChange={(e) => setProfileForm({...profileForm, newPassword: e.target.value})}
+                      onChange={(e) =>
+                        setProfileForm({
+                          ...profileForm,
+                          newPassword: e.target.value,
+                        })
+                      }
                       className="form-input"
                     />
                   </div>
@@ -961,7 +1037,12 @@ function UserDashboard() {
                     <input
                       type="password"
                       value={profileForm.confirmPassword}
-                      onChange={(e) => setProfileForm({...profileForm, confirmPassword: e.target.value})}
+                      onChange={(e) =>
+                        setProfileForm({
+                          ...profileForm,
+                          confirmPassword: e.target.value,
+                        })
+                      }
                       className="form-input"
                     />
                   </div>
@@ -979,7 +1060,9 @@ function UserDashboard() {
                 <button
                   type="submit"
                   disabled={isUpdatingProfile}
-                  className={`primary-button ${isUpdatingProfile ? "loading" : ""}`}
+                  className={`primary-button ${
+                    isUpdatingProfile ? "loading" : ""
+                  }`}
                 >
                   {isUpdatingProfile ? "Updating..." : "✅ Update Profile"}
                 </button>

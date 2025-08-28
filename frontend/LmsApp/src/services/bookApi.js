@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:9000";
+const API_URL = "https://library-management-system-gzjz.onrender.com";
 
 // BOOKS
 export const addBook = (data) => {

@@ -14,7 +14,7 @@ function AdminDashboard() {
     const fetchBookCount = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:9000/api/books/count"
+          "https://library-management-system-gzjz.onrender.com/api/books/count"
         );
         console.log("Axios Response:", response); // log entire response
         console.log("Total Books from backend:", response.data.totalBooks);
@@ -33,7 +33,7 @@ function AdminDashboard() {
   useEffect(() => {
     const TotalUsersCount = async () => {
       try {
-        const response = await axios.get("http://localhost:9000/totalusers");
+        const response = await axios.get("https://library-management-system-gzjz.onrender.com/totalusers");
         setTotalUsers(response.data.totalUsers);
       } catch (error) {
         console.log("Error while getting total users!", error);
@@ -48,7 +48,7 @@ function AdminDashboard() {
     const fetchBurrowedBookscount = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:9000/api/stats/burrowed/count"
+          "https://library-management-system-gzjz.onrender.com/api/stats/burrowed/count"
         );
         setBurowedBooksCount(response.data.burrowedBooksCount);
       } catch (error) {
@@ -65,7 +65,7 @@ function AdminDashboard() {
     const fetchOverdueBooksCount = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:9000/api/burrowings/overdue"
+          "https://library-management-system-gzjz.onrender.com/api/burrowings/overdue"
         );
         setOverdueBooksCount(response.data.overdueBooksCount);
       } catch (error) {
@@ -89,7 +89,7 @@ function AdminDashboard() {
     const fetchCategoryCounts = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:9000/api/category-counts"
+          "https://library-management-system-gzjz.onrender.com/api/category-counts"
         );
         console.log("Category counts:", res.data);
         setStatistics(res.data);
@@ -108,12 +108,12 @@ function AdminDashboard() {
   const loadData = async () => {
     try {
       //fetch all books
-      const booksResponse = await axios.get("http://localhost:9000/api/books");
+      const booksResponse = await axios.get("https://library-management-system-gzjz.onrender.com/api/books");
       setBooks(booksResponse.data);
 
       //fetch all burrowings
       const burrowResponse = await axios.get(
-        "http://localhost:9000/api/burrowings"
+        "https://library-management-system-gzjz.onrender.com/api/burrowings"
       );
       setBurrowRecords(burrowResponse.data);
       console.log(burrowResponse.data);
@@ -129,14 +129,14 @@ function AdminDashboard() {
       const fetchUsersWithBurrowCount = async () => {
         try {
           //  Fetch all users
-          const res = await axios.get("http://localhost:9000/api/userdata");
+          const res = await axios.get("https://library-management-system-gzjz.onrender.com/api/userdata");
           const usersData = res.data;
 
           //  Fetch borrow counts for each user in parallel
           const burrowCounts = await Promise.all(
             usersData.map(async (user) => {
               const burrowRes = await axios.get(
-                `http://localhost:9000/api/books/burrowstatus/${user._id}`
+                `https://library-management-system-gzjz.onrender.com/api/books/burrowstatus/${user._id}`
               );
               const currentBurrows = Array.isArray(burrowRes.data)
                 ? burrowRes.data.filter(

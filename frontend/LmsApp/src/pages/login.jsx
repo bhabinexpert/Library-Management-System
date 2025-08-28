@@ -38,7 +38,7 @@ export function Login() {
       setLoading(true); // Show loader during login request
 
       // 🔐 Send login data to backend
-      const response = await axios.post("http://localhost:9000/login", {
+      const response = await axios.post("https://library-management-system-gzjz.onrender.com/login", {
         email,
         password,
         
@@ -88,7 +88,7 @@ export function Login() {
       setLoading(true); // Show loader during token verification
 
       // 🔎 Request backend to verify the JWT token
-      const response = await axios.get("http://localhost:9000/", {
+      const response = await axios.get("https://library-management-system-gzjz.onrender.com/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
