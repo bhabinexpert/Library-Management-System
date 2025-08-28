@@ -18,14 +18,11 @@ A modern, full-stack Library Management System built with the MERN stack (MongoD
 
 - **📚 Book Management** - Add, update, delete, and search books
 - **👥 User Management** - Admin/Librarian and Member roles with granular permissions
-- **🔄 Book Circulation** - Intuitive check-in/check-out system with due date tracking
-- **⏰ Automated Reminders** - Email notifications for due dates and reservations
 - **📊 Analytics Dashboard** - Visualize library usage with interactive charts
 - **🔍 Advanced Search** - Filter books by title, author, category, ISBN, or status
 - **🔒 Secure Authentication** - JWT-based authentication with role-based access
-- **📱 Responsive Design** - Optimized for desktop, tablet, and mobile devices
-- **💸 Fine Management** - Automatic calculation of late return fees
-- **📈 Reporting System** - Generate PDF reports for inventory, transactions, and users
+- **📱 Responsive Design** - Optimized for desktop only!
+
 
 ## 🚀 Technology Stack
 
@@ -94,29 +91,22 @@ A modern, full-stack Library Management System built with the MERN stack (MongoD
    FRONTEND_URL=http://localhost:3000
    ```
 
-5. **Initialize the database:**
-   Start MongoDB service and seed initial data (optional):
-   ```bash
-   cd server
-   npm run seed
-   ```
 
-6. **Start the application:**
+5. **Start the application:**
    - Start backend server:
      ```bash
      cd server
-     npm run dev
+     npm start
      ```
    - Start frontend development server:
      ```bash
      cd client
-     npm start
+     npm run dev
      ```
 
-7. **Access the application:**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:5000/api
-   - Admin credentials (seed data): admin@library.com / admin123
+6. **Access the application:**
+   - Frontend: https://gyankosh-lms.netlify.app/
+   - Backend : https://library-management-system-gzjz.onrender.com/
 
 ## 🌐 Usage Guide
 
@@ -126,19 +116,11 @@ A modern, full-stack Library Management System built with the MERN stack (MongoD
    - Full system access
    - Manage books, users, and categories
    - Process book loans and returns
-   - Generate reports and view analytics
    - Configure system settings
 
-2. **Library Staff:**
-   - Manage book inventory
-   - Process loans and returns
-   - View member information
-   - Generate basic reports
-
-3. **Members:**
+2. **Members/Users:**
    - Browse and search books
    - View book availability
-   - Checkout books (when logged in)
    - View personal loan history
    - Update personal profile
 
@@ -150,70 +132,6 @@ A modern, full-stack Library Management System built with the MERN stack (MongoD
   - Categorize books by genres/subjects
   - Track copies and availability status
 
-- **🔄 Loan Management:**
-  - Checkout books with due dates
-  - Renew loans (if eligible)
-  - Return books with fine calculation
-  - Reserve books that are currently checked out
-
-- **📊 Reporting:**
-  - Generate inventory reports
-  - View loan statistics
-  - Track popular books
-  - Export reports in PDF/CSV formats
-
-- **🔔 Notifications:**
-  - Due date reminders (email)
-  - Reservation availability alerts
-  - Fine notifications
-  - System announcements
-
-## 📊 Database Schema
-
-```mermaid
-erDiagram
-    USER ||--o{ LOAN : "has"
-    USER {
-        string _id
-        string name
-        string email
-        string password
-        string role "admin/staff/member"
-        date registrationDate
-        string status "active/inactive"
-    }
-    
-    BOOK ||--o{ LOAN : "has"
-    BOOK {
-        string _id
-        string title
-        string author
-        string ISBN
-        string[] categories
-        string publisher
-        number publicationYear
-        number totalCopies
-        number availableCopies
-        string coverImage
-    }
-    
-    CATEGORY {
-        string _id
-        string name
-        string description
-    }
-    
-    LOAN {
-        string _id
-        ObjectId userId
-        ObjectId bookId
-        date checkoutDate
-        date dueDate
-        date returnDate
-        number fineAmount
-        string status "active/returned/overdue"
-    }
-```
 
 ## 🤝 Contribution Guidelines
 
