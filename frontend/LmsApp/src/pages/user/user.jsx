@@ -193,7 +193,7 @@ function UserDashboard() {
       );
     }
 
-    if (selectedCategory !== "All") {
+    if (selectedCategory !== "all") {
       filtered = filtered.filter((book) => book.category === selectedCategory);
     }
 
