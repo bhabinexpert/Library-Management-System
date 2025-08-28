@@ -83,13 +83,7 @@ A modern, full-stack Library Management System built with the MERN stack (MongoD
    PORT=5000
    MONGODB_URI=mongodb://localhost:27017/library_db
    JWT_SECRET=your_secure_jwt_secret
-   JWT_EXPIRES_IN=30d
-   SMTP_HOST=smtp.example.com
-   SMTP_PORT=587
-   SMTP_USER=your_email@example.com
-   SMTP_PASS=your_email_password
-   FRONTEND_URL=http://localhost:3000
-   ```
+
 
 
 5. **Start the application:**
