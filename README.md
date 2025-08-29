@@ -1,180 +1,214 @@
-# Library Management System - MERN Stack
 
-<img width="2848" height="1601" alt="Screenshot 2025-08-18 214315" src="https://github.com/user-attachments/assets/aebcb78b-373a-406b-b5b4-c468b28b3219" />
+# 📚 Library Management System - MERN Stack  
 
-
+![Landing Page](https://github.com/user-attachments/assets/aebcb78b-373a-406b-b5b4-c468b28b3219)  
 
 [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Express.js](https://img.shields.io/badge/Express.js-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Stars](https://img.shields.io/github/stars/bhabinexpert/Library-Management-System.svg?style=social)](https://github.com/bhabinexpert/Library-Management-System/stargazers)
-[![GitHub Issues](https://img.shields.io/github/issues/bhabinexpert/Library-Management-System)](https://github.com/bhabinexpert/Library-Management-System/issues)
+[![Made for Education](https://img.shields.io/badge/Made%20for-Education-blue?style=flat&logo=bookstack)](#)
+[![Student Project](https://img.shields.io/badge/Type-Student%20Project-success)](#)
 
-A modern, full-stack Library Management System built with the MERN stack (MongoDB, Express, React, Node.js) that simplifies library operations, enhances user experience, and provides comprehensive administrative control.
+---
 
-## ✨ Key Features
+## 📖 Project Overview  
 
-- **📚 Book Management** - Add, update, delete, and search books
-- **👥 User Management** - Admin/Librarian and Member roles with granular permissions
-- **📊 Analytics Dashboard** - Visualize library usage with interactive charts
-- **🔍 Advanced Search** - Filter books by title, author, category, ISBN, or status
-- **🔒 Secure Authentication** - JWT-based authentication with role-based access
-- **📱 Responsive Design** - Optimized for desktop only!
+This **Library Management System (LMS)** was developed as part of a **Summer Enrichment Class Project**.  
+It is not intended for production but demonstrates how the **MERN stack** can be applied to solve real-world problems such as managing library resources, users, and borrowing histories.  
 
+The system is divided into two main parts:  
 
-## 🚀 Technology Stack
+- **Backend**: RESTful API using Node.js, Express, and MongoDB  
+- **Frontend**: React-based UI for Admin and Users  
 
-### Frontend
-[![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black&style=for-the-badge)](https://reactjs.org/)
-[![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-764ABC?logo=redux&logoColor=white&style=for-the-badge)](https://redux-toolkit.js.org/)
-[![Material-UI](https://img.shields.io/badge/Material--UI-0081CB?logo=mui&logoColor=white&style=for-the-badge)](https://mui.com/)
-[![React Router](https://img.shields.io/badge/React_Router-CA4245?logo=reactrouter&logoColor=white&style=for-the-badge)](https://reactrouter.com/)
-[![Axios](https://img.shields.io/badge/Axios-5A29E4?logo=axios&logoColor=white&style=for-the-badge)](https://axios-http.com/)
+---
 
+## ✨ Key Features  
 
-### Backend
-[![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white&style=for-the-badge)](https://nodejs.org/)
-[![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white&style=for-the-badge)](https://expressjs.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white&style=for-the-badge)](https://www.mongodb.com/)
-[![Mongoose](https://img.shields.io/badge/Mongoose-880000?logo=mongoose&logoColor=white&style=for-the-badge)](https://mongoosejs.com/)
-[![JWT](https://img.shields.io/badge/JWT-000000?logo=jsonwebtokens&logoColor=white&style=for-the-badge)](https://jwt.io/)
+- 📚 **Book Management** – Add, update, delete, and search books  
+- 👥 **User Management** – Separate roles for Admin/Librarian and Members  
+- 📊 **Analytics Dashboard** – View usage statistics (future scope)  
+- 🔍 **Advanced Search** – Search by title, author, category, or ISBN  
+- 🔒 **Secure Authentication** – JWT-based login and route protection  
+- 💻 **Responsive Web UI** – Built with React  
 
+---
 
-### Development Tools
-[![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white&style=for-the-badge)](https://git-scm.com/)
-[![VS Code](https://img.shields.io/badge/VS_Code-007ACC?logo=visualstudiocode&logoColor=white&style=for-the-badge)](https://code.visualstudio.com/)
-[![Postman](https://img.shields.io/badge/Postman-FF6C37?logo=postman&logoColor=white&style=for-the-badge)](https://www.postman.com/)
-[![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white&style=for-the-badge)](https://eslint.org/)
-[![Prettier](https://img.shields.io/badge/Prettier-F7B93E?logo=prettier&logoColor=black&style=for-the-badge)](https://prettier.io/)
+## 🚀 Technology Stack  
 
+### Frontend  
+- React  
+- React Router  
+- Axios  
+- Tailwind / CSS Modules  
+
+### Backend  
+- Node.js  
+- Express.js  
+- MongoDB + Mongoose  
+- JWT Authentication  
+
+### Development Tools  
+- Git & GitHub  
+- VS Code  
+- Postman (API testing)  
+- ESLint & Prettier  
+
+---
+
+## 📂 Project Structure  
+
+```bash
+Library-Management-System/
+│
+├── backend/                   # Node.js + Express backend
+│   ├── authorization/         # Auth middleware + seed scripts
+│   ├── controllers/           # Route controllers (auth, books, borrow)
+│   ├── models/                # Mongoose models
+│   ├── server.js              # Entry point
+│   └── package.json
+│
+├── frontend/LmsApp/           # React frontend app
+│   ├── public/                # Public assets (logos, images)
+│   ├── src/
+│   │   ├── components/        # Shared UI components
+│   │   ├── pages/             # Page-level views (login, signup, admin, user)
+│   │   ├── services/          # API services (Axios)
+│   │   ├── App.jsx            # Root app component
+│   │   └── main.jsx           # Entry point
+│   └── package.json
+│
+├── README.md                  # Documentation
+└── .gitignore
+````
+
+---
 
 ## 🛠️ Installation Guide
 
 ### Prerequisites
-- Node.js (v16.x or higher)
-- MongoDB (v6.x or higher)
-- NPM (v8.x or higher)
+
+* Node.js (v16+ recommended)
+* MongoDB (running locally or via Atlas)
+* NPM (v8+)
 
 ### Setup Instructions
 
-1. **Clone the repository:**
+1. **Clone the repository**
+
    ```bash
-   git clone https://github.com/bhabinexpert/Library-Management-System.git
-   cd Library-Management-System
+   git clone https://github.com/bhabinexpert/Library-Management-System-Mobile-App.git
+   cd Library-Management-System-Mobile-App
    ```
 
-2. **Install server dependencies:**
+2. **Backend Setup**
+
    ```bash
-   cd server
+   cd backend
    npm install
    ```
 
-3. **Install client dependencies:**
-   ```bash
-   cd ../client
-   npm install
-   ```
+   Create a `.env` file inside `backend/` with:
 
-4. **Configure environment variables:**
-   Create a `.env` file in the `server` directory with the following content:
    ```env
    PORT=5000
    MONGODB_URI=mongodb://localhost:27017/library_db
    JWT_SECRET=your_secure_jwt_secret
-
-
-
-5. **Start the application:**
-   - Start backend server:
-     ```bash
-     cd server
-     npm start
-     ```
-   - Start frontend development server:
-     ```bash
-     cd client
-     npm run dev
-     ```
-
-6. **Access the application:**
-   - Frontend: https://gyankosh-lms.netlify.app/
-   - Backend : https://library-management-system-gzjz.onrender.com/
-
-## 🌐 Usage Guide
-
-### User Roles
-
-1. **Admin/Librarian:**
-   - Full system access
-   - Manage books, users, and categories
-   - Process book loans and returns
-   - Configure system settings
-
-2. **Members/Users:**
-   - Browse and search books
-   - View book availability
-   - View personal loan history
-   - Update personal profile
-
-### Core Functionalities
-
-- **📚 Book Management:**
-  - Add new books with cover images
-  - Update book details and availability
-  - Categorize books by genres/subjects
-  - Track copies and availability status
-
-
-## 🤝 Contribution Guidelines
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch:**
-   ```bash
-   git checkout -b feature/your-feature-name
    ```
-3. **Commit your changes:**
+
+   Start the backend:
+
    ```bash
-   git commit -m "Add: your meaningful commit message"
+   npm start
    ```
-4. **Push to your branch:**
+
+3. **Frontend Setup**
+
    ```bash
-   git push origin feature/your-feature-name
+   cd ../frontend/LmsApp
+   npm install
+   npm run dev
    ```
-5. **Create a Pull Request**
 
-### Development Guidelines
-- Follow existing code style and patterns
-- Write meaningful commit messages
-- Add appropriate comments for complex logic
-- Update documentation when adding new features
-- Test your code thoroughly before submitting
+4. **Access the app**
 
-### Reporting Issues
-Please use the [GitHub Issues](https://github.com/bhabinexpert/Library-Management-System/issues) page to report bugs or suggest enhancements.
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## ✉️ Contact
-
-**Project Maintainer:** [Bhabin Expert](https://github.com/bhabinexpert)  
-**Email:** bhabindulal35@example.com  
-**Project Link:** [https://github.com/bhabinexpert/Library-Management-System](https://github.com/bhabinexpert/Library-Management-System)
-
-## 🙏 Acknowledgments
-
-- [MERN Stack Documentation](https://www.mongodb.com/mern-stack)
-- [React Community](https://reactjs.org/community/support.html)
-- [Material UI Documentation](https://mui.com/)
-- [Express Best Practices](https://expressjs.com/en/advanced/best-practice-performance.html)
-- [Mongoose Documentation](https://mongoosejs.com/docs/guide.html)
+   * Frontend: `http://localhost:5173` (Vite dev server)
+   * Backend API: `http://localhost:5000`
 
 ---
 
-**Ready to transform your library management?** ⭐ Star the repository if you find this project useful!  
-**Found a bug?** 🐛 Please open an issue on our [GitHub Issues](https://github.com/bhabinexpert/Library-Management-System/issues) page.
+## 🌐 Usage Guide
+
+### Roles & Permissions
+
+* **Admin/Librarian**
+
+  * Manage books & users
+  * Track borrow/return history
+  * Configure system settings
+
+* **Member/User**
+
+  * Browse and search books
+  * View availability
+  * Track personal borrowing history
+
+---
+
+## 📸 Screenshots
+
+**Login Screen**
+![Login](https://github.com/user-attachments/assets/b3e0d9dc-37d6-41de-a332-4ff1f564f783)
+
+**Dashboard**
+![Dashboard](https://github.com/user-attachments/assets/bace6f81-4393-4440-946e-219178f984ab)
+
+**Book Management**
+![Books](https://github.com/user-attachments/assets/c0f6e6a6-f700-4ed5-93ab-f18d048b6aad)
+
+---
+
+## 🤝 Contribution Guidelines
+
+1. Fork the repository
+2. Create a feature branch:
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. Commit your changes:
+
+   ```bash
+   git commit -m "Add: your feature description"
+   ```
+4. Push to GitHub and open a Pull Request
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
+See the [LICENSE](LICENSE) file for details.
+
+---
+
+## ✉️ Contact
+
+**Maintainer:** [Bhabin Dulal](https://github.com/bhabinexpert)
+**Email:** [bhabindulal35@example.com](mailto:bhabindulal35@example.com)
+
+---
+
+## 💻 Live Demo ⬇️
+
+👉 [**See Project**](https://gyankosh-lms.netlify.app/)
+
+---
+
+⭐ If you found this useful, consider giving it a star on GitHub!
+🐛 Found a bug? Please report it via [Issues](https://github.com/bhabinexpert/Library-Management-System-Mobile-App/issues).
+
+```
+
