@@ -173,16 +173,60 @@ function LandingPage() {
           <Contact />
         </div>
 
-        <div className="dev-info" id="dev-info">
-          {/* <h2 className="dev-heading">👥 Meet the Developer</h2> */}
-          
+        <div className="dev-info" id="dev-info">          
           <DeveloperInfo />
-
         </div>
-        {/* <div className="redirect"></div>
-        <div className="details"></div>
-        <div className="featured-books"></div>
-        <div className="buttom-information"></div> */}
+
+        {/* Footer */}
+      <footer className="bg-gray-800 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-15 ">
+            <div>
+              <h3 className="text-xl font-semibold mb-4">GyanKosh</h3>
+              <p className="text-gray-400">
+                Transforming how people access, discover, and enjoy books.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><a href="#explore" className="text-gray-400 hover:text-white">Explore</a></li>
+                <li><a href="#about-us" className="text-gray-400 hover:text-white">About Us</a></li>
+                <li><a href="#contact" className="text-gray-400 hover:text-white">Contact</a></li>
+                <li><a href="#dev-info" className="text-gray-400 hover:text-white">Meet the Developer</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Terms of Service</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white">Copyright</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Connect With Us</h3>
+              <div className="flex gap-4">
+                <a href="#" className="text-gray-400 hover:text-white">
+                  <i className="fab fa-facebook-f text-xl"></i>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white">
+                  <i className="fab fa-twitter text-xl"></i>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white">
+                  <i className="fab fa-instagram text-xl"></i>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white">
+                  <i className="fab fa-linkedin-in text-xl"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-700 mt-8 mb-5 pt-8 text-center text-gray-400">
+            <p>© {new Date().getFullYear()} GyanKosh. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
       </section>
     </>
   );
