@@ -132,10 +132,6 @@ Library-Management-System/
    npm run dev
    ```
 
-4. **Access the app**
-
-   * Frontend: `http://localhost:5173` (Vite dev server)
-   * Backend API: `http://localhost:5000`
 
 ---
 
