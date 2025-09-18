@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Version Coming Soon</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e0f7fa 0%, #f8bbd0 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      animation: fadeIn 1.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .icon {
+      font-size: 4rem;
+      margin-bottom: 24px;
+      animation: bounce 1.5s infinite alternate;
+    }
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-20px); }
+    }
+    h2 {
+      color: #4F8A8B;
+      font-size: 2rem;
+      margin-bottom: 12px;
+      text-shadow: 1px 1px 8px #fff;
+    }
+    p {
+      color: #333;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .kind-message {
+      color: #ad1457;
+      font-weight: bold;
+      font-size: 1.05rem;
+      display: block;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="icon">📱</div>
+  <h2>Mobile Version Coming Soon!</h2>
+  <p>
+    Thank you for visiting our Library Management System.<br>
+    The mobile experience is currently under development.<br>
+    For the best experience, please access the website via desktop.<br>
+    <span class="kind-message">We appreciate your patience and support!</span>
+  </p>
+</body>
+</html>
