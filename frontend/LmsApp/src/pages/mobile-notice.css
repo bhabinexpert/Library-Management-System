@@ -44,3 +44,21 @@ p {
   display: block;
   margin-top: 10px;
 }
+
+@media (max-width: 768px) {
+  .mobile-notice-container {
+    padding: 24px 8px;
+    min-height: 100vh;
+  }
+  h2 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .mobile-notice-animation {
+    margin-bottom: 16px;
+  }
+}

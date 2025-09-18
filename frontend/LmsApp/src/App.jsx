@@ -1,3 +1,4 @@
+import React from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
 import LandingPage from "./pages/landing.jsx";
@@ -8,15 +9,27 @@ import ProtectedRoute from "./components/protectedRoute.jsx";
 import AdminDashboard from "./pages/admin/admin.jsx";
 import UserDashboard from "./pages/user/user.jsx";
 import MobileNotice from "./pages/mobile-notice.jsx";
+
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (isMobile && location.pathname !== "/mobile-notice") {
-      navigate("/mobile-notice", { replace: true });
-    }
+    // Function to check and redirect based on window size
+    const handleResize = () => {
+      const isMobileScreen = window.innerWidth <= 768;
+      if (isMobileScreen && location.pathname !== "/mobile-notice") {
+        navigate("/mobile-notice", { replace: true });
+      } else if (!isMobileScreen && location.pathname === "/mobile-notice") {
+        window.location.href = "/"; // Refresh to main site
+      }
+    };
+
+    // Initial check
+    handleResize();
+    // Listen for resize events
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [location, navigate]);
 
   return (
