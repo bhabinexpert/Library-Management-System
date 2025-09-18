@@ -4,7 +4,7 @@ import axios from "axios";
 import "./login-Signup.css";
 
 
-export function Login() {
+function Login() {
   const [email, setEmail] = useState("");              // User email input
   const [password, setPassword] = useState("");        // User password input
   const [dialogMessage, setDialogMessage] = useState("");  // Custom alert message
@@ -192,3 +192,5 @@ export function Login() {
     </>
   );
 }
+
+export default Login;

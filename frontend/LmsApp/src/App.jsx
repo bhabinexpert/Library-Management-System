@@ -1,8 +1,8 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
 import LandingPage from "./pages/landing.jsx";
-import { Login } from "./pages/login.jsx";
+const Login = lazy(() => import("./pages/login.jsx"));
 import { Signup } from "./pages/signup.jsx";
 import Contact from "./pages/contact.jsx";
 import ProtectedRoute from "./components/protectedRoute.jsx";
@@ -34,22 +34,24 @@ function App() {
 
   return (
     <>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/user/home/" element={<UserDashboard />} />
-        <Route path="/mobile-notice" element={<MobileNotice />} />
-      </Routes>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/user/home/" element={<UserDashboard />} />
+          <Route path="/mobile-notice" element={<MobileNotice />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }
