@@ -418,7 +418,9 @@ function UserDashboard() {
 
       const alreadyBurrowed = statusResponse.data.some(
         (record) =>
-          record.book._id === burrowingBook._id && record.status === "burrowed"
+          record.book &&
+          record.book._id === burrowingBook._id &&
+          record.status === "burrowed"
       );
 
       if (alreadyBurrowed) {
