@@ -222,7 +222,7 @@ function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-700 mt-8 mb-5 pt-8 text-center text-gray-400">
+          <div className="border-t border-gray-700 mt-8 mb-4 pt-8 text-center text-white">
             <p>© {new Date().getFullYear()} GyanKosh. All rights reserved.</p>
           </div>
         </div>
