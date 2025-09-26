@@ -785,12 +785,12 @@ function UserDashboard() {
                       .map((record) => (
                         <tr key={record._id}>
                           <td className="history-book-title">
-                            {record.book.title}
+                            {record.book ? record.book.title : "Unknown"}
                           </td>
                           <td className="history-book-author">
-                            {record.book.author}
+                            {record.book ? record.book.author : "Unknown"}
                           </td>
-                          <td>{record.book.category}</td>
+                          <td>{record.book ? record.book.category : "Unknown"}</td>
                           <td className="history-date">
                             {new Date(
                               record.burrowDate || record.borrowDate
